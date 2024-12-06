@@ -1,0 +1,31 @@
+﻿<h2 class="text-center">Afisare produse</h2>
+<br />
+@if(ViewBag.Message != null){
+
+    <h2 class="alert-success p-3 rounded-3 text-center mb-5">@ViewBag.Message</h2>
+}
+<div class="d-flex justify-content-center">
+    <a class="btn btn-outline-success" href="/Categories/Index/">Afisare categorii</a>
+    <br />
+    <a class="btn btn-outline-success" href="/Products/New">Adauga produs</a>
+    <br />
+</div>
+<br />
+
+@foreach (var product in ViewBag.Products)
+{
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title alert-success py-3 px-3 rounded-2">@product.Title</h3>
+            <p class="card-text">@product.Price</p>
+            <div class="d-flex justify-content-between flex-row mt-5">
+                <div><i class="bi bi-globe"></i> @product.Category.CategoryName</div>
+                <a class="btn btn-success" href="/Products/Show/@product.Id">Afisare articol</a>
+            </div>
+        </div>
+    </div>
+    <br />
+    <br />
+}
+
+

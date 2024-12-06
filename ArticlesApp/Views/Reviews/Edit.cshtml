@@ -1,0 +1,20 @@
+﻿
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Editare review</h2>
+<br />
+
+<form method="post" action="/Reviews/Edit/@ViewBag.Review.Id">
+
+    <label>Continut review</label>
+    <br />
+
+    <textarea name="Content">@ViewBag.Review.Content</textarea>
+    <br />
+
+    <button class="btn  btn-primary" type="submit">Editeaza review-ul</button>
+
+</form>
+
