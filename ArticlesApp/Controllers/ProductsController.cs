@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ArticlesApp.Controllers
 {
@@ -15,7 +16,9 @@ namespace ArticlesApp.Controllers
 
 		public IActionResult Index()
 		{
-			var products = db.Products.Include("Category");
+            int unconfirmedCount =db.Products.Count(p => !p.IsVisible);
+            ViewBag.UnconfirmedCount = unconfirmedCount;
+            var products = db.Products.Include("Category");
 			ViewBag.Products = products;
 			if (TempData.ContainsKey("message"))
 			{
@@ -23,16 +26,42 @@ namespace ArticlesApp.Controllers
 			}
 			return View();
 		}
+        [Authorize(Policy = "AdminOnly")]
+        public IActionResult Confirm()
+        {
+            var products = db.Products.Include("Category");
+            ViewBag.Products = products;
+            if (TempData.ContainsKey("message"))
+            {
+                ViewBag.Message = TempData["message"];
+            }
+            return View();
+        }
+        [HttpPost]
+        public IActionResult ConfirmAddProduct(int id)
+        {
+            var product = db.Products.FirstOrDefault(p => p.Id == id);
 
-		public IActionResult Show(int id)
+            if (product == null)
+            {
+                return NotFound(); 
+            }
+            product.IsVisible = true;
+            db.SaveChanges();
+            ViewBag.Message = "Product visibility confirmed successfully!";
+            return RedirectToAction("Index"); 
+        }
+
+
+        public IActionResult Show(int id)
 		{
 			Product product = db.Products.Include("Category").Include("Reviews")
 							  .Where(art => art.Id == id)
 							  .First();
 			return View(product);
 		}
-
-		public IActionResult New()
+        [Authorize(Policy = "ColaboratorOnly")]
+        public IActionResult New()
 		{
 			Product product = new Product();
 			product.Categ = GetAllCategories();

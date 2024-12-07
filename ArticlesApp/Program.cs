@@ -11,6 +11,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ColaboratorOnly", policy => policy.RequireRole("Colaborator"));
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+});
+
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 options.SignIn.RequireConfirmedAccount = true)

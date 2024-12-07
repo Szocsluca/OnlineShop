@@ -21,11 +21,32 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark position-relative" asp-area="" asp-controller="Products" asp-action="Confirm">
+                                    Confirm
+                                    @if (ViewBag.UnconfirmedCount > 0)
+                                    {
+                                        <span class="badge bg-danger rounded-pill position-absolute top-20 start-100 translate-middle">
+                                            @ViewBag.UnconfirmedCount
+                                        </span>
+                                    }
+                                </a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Colaborator"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="New">New Product</a>
+                            </li>
+                        }
+                       
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
