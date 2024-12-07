@@ -1,4 +1,6 @@
 ﻿using ArticlesApp.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArticlesApp.Controllers
@@ -6,60 +8,70 @@ namespace ArticlesApp.Controllers
     public class ReviewsController : Controller
 	{
 		private readonly ApplicationDbContext db;
-		public ReviewsController(ApplicationDbContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+		private readonly RoleManager<IdentityRole> _roleManager;
+        public ReviewsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager)
 		{
 			db = context;
-		}
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
 
 		[HttpPost]
-		public IActionResult New(Review rev)
+		[Authorize(Roles = "User,Colaborator,Admin")]
+        public IActionResult Delete(int id)
 		{
-			rev.Date = DateTime.Now;
+			Review rev = db.Reviews.Find(id);
+            if(rev.UserId == _userManager.GetUserId(User) || User.IsInRole("Admin"))
+            {
+                db.Reviews.Remove(rev);
+                db.SaveChanges();
+                return Redirect("/Products/Show/" + rev.ProductId);
+            }
+            else
+            {
+				TempData["message"] = "Nu aveti dreptul sa stergeti review-ul!";
+				TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Index","Products");
+            }
+        }
 
-			try
-			{
-				db.Reviews.Add(rev);
-				db.SaveChanges();
-				return Redirect("/Products/Show/" + rev.ProductId);
-			}
-
-			catch (Exception)
-			{
-				return Redirect("/Products/Show/" + rev.ProductId);
-			}
-
-		}
+		[Authorize(Roles = "User,Colaborator,Admin")]
+        public IActionResult Edit(int id)
+		{
+			Review rev = db.Reviews.Find(id);
+			if(rev.UserId == _userManager.GetUserId(User))
+            {
+                return View(rev);
+            }
+            else
+            {
+                TempData["message"] = "Nu aveti dreptul sa editati review-ul!";
+                TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Index", "Products");
+            }
+        }
 
 		[HttpPost]
-		public IActionResult Delete(int id)
+        [Authorize(Roles = "User,Colaborator,Admin")]
+        public IActionResult Edit(int id, Review requestReview)
 		{
 			Review rev = db.Reviews.Find(id);
-			db.Reviews.Remove(rev);
-			db.SaveChanges();
-			return Redirect("/Products/Show/" + rev.ProductId);
-		}
-
-		public IActionResult Edit(int id)
-		{
-			Review rev = db.Reviews.Find(id);
-			ViewBag.Review = rev;
-			return View();
-		}
-
-		[HttpPost]
-		public IActionResult Edit(int id, Review requestReview)
-		{
-			Review rev = db.Reviews.Find(id);
-			try
-			{
-				rev.Content = requestReview.Content;
-				db.SaveChanges();
-				return Redirect("/Products/Show/" + rev.ProductId);
-			}
-			catch (Exception e)
-			{
-				return Redirect("/Products/Show/" + rev.ProductId);
-			}
-		}
-	}
+			if(rev.UserId == _userManager.GetUserId(User))
+            {
+                rev.Content = requestReview.Content;
+                rev.Score = requestReview.Score;
+                db.SaveChanges();
+                return Redirect("/Products/Show/" + rev.ProductId);
+                
+            }
+            else
+            {
+                TempData["message"] = "Nu aveti dreptul sa editati review-ul!";
+                TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Index", "Products");
+            }
+        }
+    }
 }

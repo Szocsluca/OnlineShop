@@ -3,18 +3,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace ArticlesApp.Controllers
 {
     public class ProductsController : Controller
 	{
-		private readonly ApplicationDbContext db;
-		public ProductsController(ApplicationDbContext context)
-		{
-			db = context;
-		}
+        private readonly ApplicationDbContext db;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public ProductsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager)
+        {
+            db = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
 
-		public IActionResult Index()
+        public IActionResult Index()
 		{
             int unconfirmedCount =db.Products.Count(p => !p.IsVisible);
             ViewBag.UnconfirmedCount = unconfirmedCount;
@@ -52,14 +58,55 @@ namespace ArticlesApp.Controllers
             return RedirectToAction("Index"); 
         }
 
-
+		[HttpGet]
         public IActionResult Show(int id)
 		{
 			Product product = db.Products.Include("Category").Include("Reviews")
-							  .Where(art => art.Id == id)
+				.Include("User").Include("Reviews.User")
+                              .Where(art => art.Id == id)
 							  .First();
-			return View(product);
+			SetAccessRights();
+			if(TempData.ContainsKey("message"))
+			{
+                ViewBag.Message = TempData["message"];
+				ViewBag.Alert = TempData["messageType"];
+            }
+                return View(product);
 		}
+
+		[HttpPost]
+		[Authorize(Roles ="User,Colaborator,Admin")]
+        public IActionResult Show([FromForm] Review review)
+		{
+			review.Date = DateTime.Now;
+            review.UserId = _userManager.GetUserId(User);
+			var existingReview = db.Reviews.Where(r => r.ProductId == review.ProductId && r.UserId == review.UserId).FirstOrDefault();
+
+            if (existingReview != null)
+			{
+				TempData["message"] = "Ai lasat deja un review pentru acest produs!";
+                TempData["messageType"] = "alert-danger";
+				return Redirect("/Products/Show/" + review.ProductId);
+            }
+
+             if (existingReview == null)
+			{
+                db.Reviews.Add(review);
+                db.SaveChanges();
+				return Redirect("/Products/Show/" + review.ProductId);
+            }
+            else
+			{
+				Product prod = db.Products.Include("Category")
+					.Include("Reviews").Include("Reviews.User")
+                    .Where(p => p.Id == review.ProductId).First();
+
+                SetAccessRights();
+                return View(prod);
+
+            }
+        }
+
         [Authorize(Policy = "ColaboratorOnly")]
         public IActionResult New()
 		{
@@ -129,7 +176,14 @@ namespace ArticlesApp.Controllers
 			return RedirectToAction("Index");
 		}
 
-		[NonAction]
+		private void SetAccessRights()
+        {
+            ViewBag.AfisareButoane = false;
+            ViewBag.UserCurent = _userManager.GetUserId(User);
+			ViewBag.EsteAdmin = User.IsInRole("Admin");
+        }
+
+        [NonAction]
 		public IEnumerable<SelectListItem> GetAllCategories()
 		{
 			// generam o lista de tipul SelectListItem fara elemente

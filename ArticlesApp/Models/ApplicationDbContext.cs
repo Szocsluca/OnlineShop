@@ -38,6 +38,10 @@ namespace ArticlesApp.Models
             .HasOne(ab => ab.Cart)
             .WithMany(ab => ab.ProductCarts)
             .HasForeignKey(ab => ab.CartId);
+
+            modelBuilder.Entity<Review>()
+                .HasIndex(r => new { r.ProductId, r.UserId })
+                .IsUnique();
         }
     }
 }

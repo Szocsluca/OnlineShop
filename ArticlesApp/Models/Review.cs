@@ -15,6 +15,8 @@ namespace ArticlesApp.Models
 
         public string UserId { get; set; }
 
+        public int Score { get; set; }
+
         public virtual ApplicationUser User { get; set; }
     }
 
