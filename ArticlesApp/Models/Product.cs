@@ -16,7 +16,7 @@ namespace ArticlesApp.Models
         //public Image Image { get; set; }
         public int Price { get; set; }
         public int Stock { get; set; }
-
+        public string Image { get; set; }
         public bool IsVisible { get; set; }
         public int Rating { get; set; }
 		[Required(ErrorMessage = "Categoria este obligatorie")]

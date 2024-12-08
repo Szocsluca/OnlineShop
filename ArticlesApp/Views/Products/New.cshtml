@@ -4,12 +4,18 @@
 <div class="container mt-5">
     <div class="row">
         <div class="col-6 offset-3">
-            <form method="post" asp-action="New" asp-controller="Products">
+            <form enctype="multipart/form-data" asp-action="New" asp-controller="Products">
                 <div class="form-group">
                     <label asp-for="Title" class="form-label">Titlu Produs</label>
                     <br />
                     <input asp-for="Title" class="form-control" />
                     <br /><br />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Image">Incarca Imagine</label>
+					<br />
+					<input asp-for="Image" type="file" class="form-control" />
+					<br /><br />
                 </div>
                 <div class="form-group">
                     <label asp-for="Description" class="form-label">Descriere Produs</label>

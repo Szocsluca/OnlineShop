@@ -12,12 +12,14 @@ namespace ArticlesApp.Controllers
         private readonly ApplicationDbContext db;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IWebHostEnvironment _env;
         public ProductsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager, IWebHostEnvironment env)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
+            _env = env;
         }
 
         public IActionResult Index()
@@ -116,21 +118,37 @@ namespace ArticlesApp.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult New(Product product)
+		public async Task<IActionResult> New(Product product, IFormFile Image)
 		{
-			product.Categ = GetAllCategories();
-			try
+			if (Image != null && Image.Length > 0)
 			{
-				db.Products.Add(product);
-				db.SaveChanges();
-				TempData["message"] = "Produsul a fost adaugat";
-				return RedirectToAction("Index");
+				var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+				var fileExtension = Path.GetExtension(Image.FileName).ToLower();
+				if (!allowedExtensions.Contains(fileExtension))
+				{
+					ModelState.AddModelError("ProductImage", "Fisierul trebuie sa fie o imagine (jpg, jpeg, png).");
+					return View(product);
+				}
+				var storagePath = Path.Combine(_env.WebRootPath, "images", Image.FileName);
+				var databaseFileName = "/images/" + Image.FileName;
+
+				using (var stream = new FileStream(storagePath, FileMode.Create))
+				{
+					await Image.CopyToAsync(stream);
+				}
+				ModelState.Remove(nameof(product.Image));
+				product.Image = databaseFileName;
 			}
-			catch (Exception)
-			{
-				return View(product);
-			}
-		}
+
+			if(TryValidateModel(product))
+            {
+                db.Products.Add(product);
+				await db.SaveChangesAsync();
+                return RedirectToAction("Index", "Articles");
+            }
+            product.Categ = GetAllCategories();
+            return View(product);
+        }
 
 		public IActionResult Edit(int id)
 		{
