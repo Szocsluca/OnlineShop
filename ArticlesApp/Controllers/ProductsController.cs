@@ -200,7 +200,6 @@ namespace ArticlesApp.Controllers
             Product product = db.Products.Find(id);
             try
             {
-                // Update product properties
                 product.Title = requestProduct.Title;
                 product.Description = requestProduct.Description;
                 product.Price = requestProduct.Price;
