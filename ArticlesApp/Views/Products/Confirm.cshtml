@@ -1,13 +1,13 @@
 ﻿<h2 class="text-center">Confirmare adaugare produse</h2>
 <br />
-@if(ViewBag.Message != null){
-
+@if (ViewBag.Message != null)
+{
     <h2 class="alert-success p-3 rounded-3 text-center mb-5">@ViewBag.Message</h2>
 }
 
-
 @foreach (var product in ViewBag.Products)
-{  if(@product.IsVisible == false)
+{
+    if (@product.IsVisible == false)
     {
         <div class="card">
             <div class="card-body">
@@ -19,14 +19,14 @@
                         <input type="hidden" name="id" value="@product.Id" />
                         <button type="submit" class="btn btn-success">Confirma adaugare produs</button>
                     </form>
+                    <form action="/Products/DeleteProductRequest" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@product.Id" />
+                        <button type="submit" class="btn btn-danger">Sterge cererea</button>
+                    </form>
                 </div>
             </div>
         </div>
         <br />
         <br />
     }
-   
-   
 }
-
-

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using System.Linq;
 
 namespace ArticlesApp.Controllers
 {
@@ -22,18 +23,37 @@ namespace ArticlesApp.Controllers
             _env = env;
         }
 
-        public IActionResult Index()
-		{
-            int unconfirmedCount =db.Products.Count(p => !p.IsVisible);
+        public IActionResult Index(List<int> categoryIds)
+        {
+            ViewBag.Categories = db.Categories.ToList();
+
+   
+            IQueryable<Product> products = db.Products.Include("Category");
+            if (categoryIds != null && categoryIds.Count > 0)
+            {
+                products = products.Where(p => categoryIds.Contains(p.CategoryId));
+            }
+
+            ViewBag.Products = products.ToList();
+
+   
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_ProductListPartial", ViewBag.Products);
+            }
+            int unconfirmedCount = db.Products.Count(p => !p.IsVisible);
             ViewBag.UnconfirmedCount = unconfirmedCount;
-            var products = db.Products.Include("Category");
-			ViewBag.Products = products;
-			if (TempData.ContainsKey("message"))
-			{
-				ViewBag.Message = TempData["message"];
-			}
-			return View();
-		}
+
+            var pproducts = db.Products.ToList();
+            ViewBag.Products = pproducts;
+
+
+            return View();
+        }
+
+
+
+
         [Authorize(Policy = "AdminOnly")]
         public IActionResult Confirm()
         {
@@ -59,8 +79,18 @@ namespace ArticlesApp.Controllers
             ViewBag.Message = "Product visibility confirmed successfully!";
             return RedirectToAction("Index"); 
         }
+        [HttpPost]
+        public IActionResult DeleteProductRequest(int id)
+        {
+            Product product = db.Products.Find(id);
+            db.Products.Remove(product);
+            db.SaveChanges();
+            TempData["message"] = "Cererea a fost respinsa";
+            return RedirectToAction("Confirm");
+        }
 
-		[HttpGet]
+
+        [HttpGet]
         public IActionResult Show(int id)
 		{
 			Product product = db.Products.Include("Category").Include("Reviews")
@@ -118,7 +148,7 @@ namespace ArticlesApp.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> New(Product product, IFormFile Image)
+        public async Task<IActionResult> New(Product product, IFormFile Image)
 		{
 			if (Image != null && Image.Length > 0)
 			{
@@ -131,26 +161,27 @@ namespace ArticlesApp.Controllers
 				}
 				var storagePath = Path.Combine(_env.WebRootPath, "images", Image.FileName);
 				var databaseFileName = "/images/" + Image.FileName;
+                using (var stream = new FileStream(storagePath, FileMode.Create))
+                {
+                    await Image.CopyToAsync(stream);
+                }
 
-				using (var stream = new FileStream(storagePath, FileMode.Create))
-				{
-					await Image.CopyToAsync(stream);
-				}
-				ModelState.Remove(nameof(product.Image));
+                ModelState.Remove(nameof(product.Image));
 				product.Image = databaseFileName;
 			}
-
-			if(TryValidateModel(product))
-            {
-                db.Products.Add(product);
-				await db.SaveChangesAsync();
-                return RedirectToAction("Index", "Articles");
+			Console.WriteLine(product.Title);
+            if (TryValidateModel(product))
+            {    
+				db.Products.Add(product);
+				db.SaveChanges();
+                TempData["message"] = "Produsul a fost trimis la confirmare";
+                return RedirectToAction("Index");
             }
             product.Categ = GetAllCategories();
             return View(product);
         }
-
-		public IActionResult Edit(int id)
+        [Authorize(Policy = "ColaboratorOnly")]
+        public IActionResult Edit(int id)
 		{
 
 			Product product = db.Products.Include("Category")
@@ -160,31 +191,51 @@ namespace ArticlesApp.Controllers
 			return View(product);
 		}
 
-		[HttpPost]
-		public IActionResult Edit(int id, Product requestProduct)
-		{
-			Product product = db.Products.Find(id);
-			try
-			{
-				product.Title = requestProduct.Title;
-				product.Description = requestProduct.Description;
-				product.Price = requestProduct.Price;
-				product.Stock = requestProduct.Stock;
-				product.Rating = requestProduct.Rating;
-				//product.Image = requestProduct.Image;
-				product.CategoryId = requestProduct.CategoryId;
-				db.SaveChanges();
-				TempData["message"] = "Produsul a fost modificat";
-				return RedirectToAction("Index");
-			}
-			catch (Exception e)
-			{
-				requestProduct.Categ = GetAllCategories();
-				return View(requestProduct);
-			}
-		}
 
-		[HttpPost]
+        //--------------------------------------------------------------------------------
+        [HttpPost]
+        [Authorize(Policy = "ColaboratorOnly")]
+        public IActionResult Edit(int id, Product requestProduct, IFormFile uploadedImage)
+        {
+            Product product = db.Products.Find(id);
+            try
+            {
+                // Update product properties
+                product.Title = requestProduct.Title;
+                product.Description = requestProduct.Description;
+                product.Price = requestProduct.Price;
+                product.Stock = requestProduct.Stock;
+                product.Rating = requestProduct.Rating;
+                product.CategoryId = requestProduct.CategoryId;
+                product.IsVisible = false;
+
+
+                if (uploadedImage != null && uploadedImage.Length > 0)
+                {
+             
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(uploadedImage.FileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        uploadedImage.CopyTo(stream);
+                    }
+                    product.Image = "/images/" + fileName;
+                }
+                db.SaveChanges();
+                TempData["message"] = "Produsul a fost modificat";
+                return RedirectToAction("Index");
+            }
+            catch (Exception e)
+            {
+                requestProduct.Categ = GetAllCategories();
+                return View(requestProduct);
+            }
+        }
+
+
+
+
+        [HttpPost]
 		public ActionResult Delete(int id)
 		{
 			Product product = db.Products.Find(id);

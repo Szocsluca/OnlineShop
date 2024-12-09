@@ -16,19 +16,19 @@ namespace ArticlesApp.Models
         //public Image Image { get; set; }
         public int Price { get; set; }
         public int Stock { get; set; }
-        public string Image { get; set; }
+        public string? Image { get; set; }
         public bool IsVisible { get; set; }
         public int Rating { get; set; }
 		[Required(ErrorMessage = "Categoria este obligatorie")]
         public int CategoryId { get; set; }
 
         public string? UserId { get; set; }
-        public virtual Category Category { get; set; }
-        public virtual ICollection<Review> Reviews { get; set; }
+        public virtual Category? Category { get; set; }
+        public virtual ICollection<Review>? Reviews { get; set; }
         [NotMapped]
-        public IEnumerable<SelectListItem> Categ { get; set; }
+        public IEnumerable<SelectListItem>? Categ { get; set; }
 
-        public virtual ApplicationUser User { get; set; }
+        public virtual ApplicationUser? User { get; set; }
         public virtual ICollection<ProductCart>? ProductCarts { get; set; }
     }
 
