@@ -26,8 +26,6 @@ namespace ArticlesApp.Controllers
         public IActionResult Index(List<int> categoryIds)
         {
             ViewBag.Categories = db.Categories.ToList();
-
-   
             IQueryable<Product> products = db.Products.Include("Category");
             if (categoryIds != null && categoryIds.Count > 0)
             {
@@ -69,14 +67,8 @@ namespace ArticlesApp.Controllers
         public IActionResult ConfirmAddProduct(int id)
         {
             var product = db.Products.FirstOrDefault(p => p.Id == id);
-
-            if (product == null)
-            {
-                return NotFound(); 
-            }
             product.IsVisible = true;
             db.SaveChanges();
-            ViewBag.Message = "Product visibility confirmed successfully!";
             return RedirectToAction("Index"); 
         }
         [HttpPost]
@@ -90,6 +82,8 @@ namespace ArticlesApp.Controllers
         }
 
 
+
+        //--------------------------------------------------------------------------------
         [HttpGet]
         public IActionResult Show(int id)
 		{
@@ -139,7 +133,9 @@ namespace ArticlesApp.Controllers
             }
         }
 
-        [Authorize(Policy = "ColaboratorOnly")]
+
+        //--------------------------------------------------------------------------------
+        [Authorize(Roles = "Colaborator,Admin")]
         public IActionResult New()
 		{
 			Product product = new Product();
@@ -148,6 +144,7 @@ namespace ArticlesApp.Controllers
 		}
 
 		[HttpPost]
+        [Authorize(Roles = "Colaborator,Admin")]
         public async Task<IActionResult> New(Product product, IFormFile Image)
 		{
 			if (Image != null && Image.Length > 0)
@@ -174,13 +171,14 @@ namespace ArticlesApp.Controllers
             {    
 				db.Products.Add(product);
 				db.SaveChanges();
-                TempData["message"] = "Produsul a fost trimis la confirmare";
                 return RedirectToAction("Index");
             }
             product.Categ = GetAllCategories();
             return View(product);
         }
-        [Authorize(Policy = "ColaboratorOnly")]
+
+        //--------------------------------------------------------------------------------
+        [Authorize(Roles = "Colaborator,Admin")]
         public IActionResult Edit(int id)
 		{
 
@@ -190,11 +188,9 @@ namespace ArticlesApp.Controllers
 			product.Categ = GetAllCategories();
 			return View(product);
 		}
-
-
-        //--------------------------------------------------------------------------------
+       
         [HttpPost]
-        [Authorize(Policy = "ColaboratorOnly")]
+        [Authorize(Roles = "Colaborator,Admin")]
         public IActionResult Edit(int id, Product requestProduct, IFormFile uploadedImage)
         {
             Product product = db.Products.Find(id);
@@ -234,6 +230,8 @@ namespace ArticlesApp.Controllers
 
 
 
+        //--------------------------------------------------------------------------------
+        [Authorize(Roles = "Colaborator,Admin")]
         [HttpPost]
 		public ActionResult Delete(int id)
 		{

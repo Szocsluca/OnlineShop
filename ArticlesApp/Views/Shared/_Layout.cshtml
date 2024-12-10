@@ -30,7 +30,7 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark position-relative" asp-area="" asp-controller="Products" asp-action="Confirm">
-                                    Cereri Colaboratori
+                                    Cereri 
                                     @if (ViewBag.UnconfirmedCount > 0)
                                     {
                                         <span class="badge bg-danger rounded-pill position-absolute top-20 start-100 translate-middle">
@@ -40,7 +40,7 @@
                                 </a>
                             </li>
                         }
-                        @if (User.IsInRole("Colaborator"))
+                        @if (User.IsInRole("Colaborator") || User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="New">New Product</a>
