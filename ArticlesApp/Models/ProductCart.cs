@@ -10,7 +10,6 @@ namespace ArticlesApp.Models
         public int? CartId { get; set; }
         public virtual Cart? Cart { get; set; }
         public virtual Product? Product { get; set; }
-
-        public DateTime DateCreated { get; set; }
+        public int Quantity { get; set; }
     }
 }

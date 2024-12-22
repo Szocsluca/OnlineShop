@@ -43,6 +43,11 @@ namespace ArticlesApp.Controllers
                                .Where(b => b.UserId == _userManager.GetUserId(User))
                             select cart;
 
+            foreach (var cart in carts)
+            {
+                cart.TotalPrice = GetTotalPrice(cart.Id);
+            }
+
             ViewBag.Carts = carts;
 
             return View();
@@ -60,7 +65,7 @@ namespace ArticlesApp.Controllers
                                   .Where(b => b.Id == id)
                                   .Where(b => b.UserId == _userManager.GetUserId(User))
                                   .FirstOrDefault();
-
+            carts.TotalPrice = GetTotalPrice(carts.Id);
             if (carts == null)
             {
                 TempData["message"] = "Resursa cautata nu poate fi gasita";
@@ -82,19 +87,13 @@ namespace ArticlesApp.Controllers
         public ActionResult New(Cart c)
         {
             c.UserId = _userManager.GetUserId(User);
+            c.TotalPrice = 0;
 
-            if (ModelState.IsValid)
-            {
-                db.Carts.Add(c);
-                db.SaveChanges();
-                TempData["message"] = "Cosul a fost adaugat";
-                TempData["messageType"] = "alert-success";
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                return View(c);
-            }
+            db.Carts.Add(c);
+            db.SaveChanges();
+            TempData["message"] = "Cosul a fost adaugat";
+            TempData["messageType"] = "alert-success";
+            return RedirectToAction("Index");
         }
 
         private void SetAccessRights()
@@ -109,6 +108,20 @@ namespace ArticlesApp.Controllers
             ViewBag.EsteAdmin = User.IsInRole("Admin");
 
             ViewBag.UserCurent = _userManager.GetUserId(User);
+        }
+
+        private int GetTotalPrice(int cartId)
+        {
+            var totalPrice = 0;
+            var productCarts = db.ProductCarts
+                .Where(b => b.CartId == cartId)
+                .Include("Product")
+                .ToList();
+            foreach (var productCart in productCarts)
+            {
+                totalPrice += productCart.Product.Price * productCart.Quantity;
+            }
+            return totalPrice;
         }
     }
 }

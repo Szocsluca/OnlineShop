@@ -91,6 +91,9 @@ namespace ArticlesApp.Controllers
 				.Include("User").Include("Reviews.User")
                               .Where(art => art.Id == id)
 							  .First();
+            ViewBag.UserCarts = db.Carts
+                                      .Where(c => c.UserId == _userManager.GetUserId(User))
+                                      .ToList();
 			SetAccessRights();
 			if(TempData.ContainsKey("message"))
 			{
@@ -126,11 +129,63 @@ namespace ArticlesApp.Controllers
 				Product prod = db.Products.Include("Category")
 					.Include("Reviews").Include("Reviews.User")
                     .Where(p => p.Id == review.ProductId).First();
-
+                ViewBag.UserCarts = db.Carts
+                                      .Where(c => c.UserId == _userManager.GetUserId(User))
+                                      .ToList();
                 SetAccessRights();
                 return View(prod);
 
             }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "User,Colaborator,Admin")]
+        public IActionResult AddCart([FromForm] ProductCart productCart)
+        {
+            if (ModelState.IsValid)
+            {
+                if (db.ProductCarts.Where(pc => pc.ProductId == productCart.ProductId)
+                    .Where(pc => pc.CartId == productCart.CartId).Count() > 0)
+                {
+
+                    //daca produsul exista deja in cos, ii incrementam cantitatea
+                    ProductCart existingProductCart = db.ProductCarts.Where(pc => pc.ProductId == productCart.ProductId)
+                        .Where(pc => pc.CartId == productCart.CartId).First();
+
+                    //daca nu sunt destule produse in stoc, afisam un mesaj de eroare
+                    Product product = db.Products.Find(productCart.ProductId);
+                    if (product.Stock < existingProductCart.Quantity + productCart.Quantity)
+                    {
+                        TempData["message"] = "Nu sunt suficiente produse in stoc";
+                        TempData["messageType"] = "alert-danger";
+                        return Redirect("/Products/Show/" + productCart.ProductId);
+                    }
+
+                    existingProductCart.Quantity += productCart.Quantity;
+                    db.SaveChanges();
+                    TempData["message"] = "Produsul a fost adaugat in cos";
+                    TempData["messageType"] = "alert-success";
+                }
+                else
+                {
+                    //daca nu sunt destule produse in stoc, afisam un mesaj de eroare
+                    Product product = db.Products.Find(productCart.ProductId);
+                    if (product.Stock < productCart.Quantity)
+                    {
+                        TempData["message"] = "Nu sunt suficiente produse in stoc";
+                        TempData["messageType"] = "alert-danger";
+                        return Redirect("/Products/Show/" + productCart.ProductId);
+                    }
+
+                    //daca produsul nu exista in cos, il adaugam
+                    db.ProductCarts.Add(productCart);
+                    db.SaveChanges();
+
+                    TempData["message"] = "Produsul a fost adaugat in cos";
+                    TempData["messageType"] = "alert-success";
+                }
+            }
+            return Redirect("/Products/Show/" + productCart.ProductId);
         }
 
 

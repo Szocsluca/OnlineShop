@@ -6,7 +6,7 @@
         @TempData["message"]
     </div>
 }
-
+<div class="card">
 <div class="container mt-4">
     <div class="card shadow-sm">
         <div class="card-body">
@@ -27,6 +27,26 @@
                 <button class="btn btn-outline-danger" type="submit"><i class="bi bi-trash"></i> Delete Product</button>
             </form>
         </div>
+    </div>
+
+    <form method="post" asp-controller = "Products" asp-action="AddCart">
+        <input type="hidden" name="ProductId" value="@Model.Id" />
+        <div class="d-flex flex-row justify-content-center p-3 border-1 border-top">
+            <div>
+                <select name="CartId" class="form-control">
+                    <option selected>Adauga produsul intr-un cos</option>
+                    @foreach (var cart in ViewBag.UserCarts)
+				    {
+					    <option value="@cart.Id">@cart.Name</option>
+				    }
+                </select>
+            </div>
+            <input type="number" name="Quantity" class="form-control" placeholder="Cantitate" />
+            <div>
+                <input type="submit" class="btn btn-success alert-success" value="+" />
+            </div>
+        </div>
+    </form>
     </div>
 
     <div class="mt-5">
