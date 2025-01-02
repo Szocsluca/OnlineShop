@@ -6,8 +6,7 @@ namespace ArticlesApp.Models
     {
         public virtual ICollection<Review>? Reviews{ get; set; }
         public virtual ICollection<Product>? Products { get; set; }
-
-        public virtual Cart? Carts { get; set; }
+        public virtual ICollection<Cart>? Carts { get; set; }
 
     }
 }

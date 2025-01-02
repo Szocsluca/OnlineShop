@@ -1,0 +1,30 @@
+﻿<br />
+<br />
+
+@if (TempData["message"] != null)
+{
+    <div class="alert @ViewBag.Alert p-3 rounded-3 text-center mb-5">
+        @ViewBag.Message
+    </div>
+}
+<br />
+
+<a asp-controller="Carts" asp-action="New" class="btn btn-success rounded-pill mb-5">
+    <i class="bi bi-plus"></i> Adăugare cos de cumparaturi
+</a>
+
+<div class="row">
+    @foreach (var cart in ViewBag.Carts)
+    {
+        <div class="col-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title" name="Name">@cart.Name</h5>
+                    <h5 class="card-title" name="Price">$@cart.TotalPrice</h5>
+                    <br />
+                    <a asp-controller="Carts" asp-action="Show" asp-route-id="@cart.Id" class="btn alert-success">Afisare Cos de cumparaturi</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
