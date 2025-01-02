@@ -1,4 +1,5 @@
 ﻿using ArticlesApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArticlesApp.Controllers
@@ -30,7 +31,7 @@ namespace ArticlesApp.Controllers
             Category category = db.Categories.Find(id);
             return View(category);
         }
-
+        [Authorize(Policy = "AdminOnly")]
         public ActionResult New()
         {
             return View();
@@ -52,7 +53,7 @@ namespace ArticlesApp.Controllers
                 return View(cat);
             }
         }
-
+        [Authorize(Policy = "AdminOnly")]
         public ActionResult Edit(int id)
         {
             Category category = db.Categories.Find(id);
@@ -79,6 +80,7 @@ namespace ArticlesApp.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public ActionResult Delete(int id)
         {
             Category category = db.Categories.Find(id);
