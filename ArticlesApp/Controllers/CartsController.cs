@@ -10,118 +10,125 @@ namespace ArticlesApp.Controllers
     public class CartsController : Controller
     {
         private readonly ApplicationDbContext db;
-
         private readonly UserManager<ApplicationUser> _userManager;
 
-        private readonly RoleManager<IdentityRole> _roleManager;
-
-        public CartsController(
-            ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager
-            )
+        public CartsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             db = context;
-
             _userManager = userManager;
-
-            _roleManager = roleManager;
         }
 
         [Authorize(Roles = "User,Colaborator,Admin")]
         public IActionResult Index()
         {
-            if (TempData.ContainsKey("message"))
-            {
-                ViewBag.Message = TempData["message"];
-                ViewBag.Alert = TempData["messageType"];
-            }
+            var userId = _userManager.GetUserId(User);
 
-            SetAccessRights();
-
-            var carts = from cart in db.Carts.Include("User")
-                               .Where(b => b.UserId == _userManager.GetUserId(User))
-                            select cart;
-
-            foreach (var cart in carts)
-            {
-                cart.TotalPrice = GetTotalPrice(cart.Id);
-            }
-
-            ViewBag.Carts = carts;
+            var cart = db.Carts
+                .Include(c => c.ProductCarts)
+                .ThenInclude(pc => pc.Product)
+                .FirstOrDefault(c => c.UserId == userId);
+            ViewBag.Carts = new List<Cart> { cart };
+            ViewBag.TotalPrice = cart.ProductCarts.Sum(pc => pc.Product.Price * pc.Quantity);
 
             return View();
         }
-
-        [Authorize(Roles = "User,Colaborator,Admin")]
-        public IActionResult Show(int id)
-        {
-            SetAccessRights();
-
-            var carts = db.Carts
-                                  .Include("ProductCarts.Product.Category")
-                                  .Include("ProductCarts.Product.User")
-                                  .Include("User")
-                                  .Where(b => b.Id == id)
-                                  .Where(b => b.UserId == _userManager.GetUserId(User))
-                                  .FirstOrDefault();
-            carts.TotalPrice = GetTotalPrice(carts.Id);
-            if (carts == null)
-            {
-                TempData["message"] = "Resursa cautata nu poate fi gasita";
-                TempData["messageType"] = "alert-danger";
-                return RedirectToAction("Index", "Articles");
-            }
-
-            return View(carts);
-        }
-
-        [Authorize(Roles = "User,Editor,Admin")]
-        public IActionResult New()
-        {
-            return View();
-        }
-
+        //Functie care actualizeaza direct din cosul de cumparaturi cantitatea produsului ( in functie de stocul disponibil )
         [HttpPost]
-        [Authorize(Roles = "User,Editor,Admin")]
-        public ActionResult New(Cart c)
+        [Authorize(Roles = "User,Colaborator,Admin")]
+        public IActionResult UpdateQuantity(int CartId, int ProductId, int Quantity)
         {
-            c.UserId = _userManager.GetUserId(User);
-            c.TotalPrice = 0;
+            var productCart = db.ProductCarts
+                .Include(pc => pc.Product)
+                .FirstOrDefault(pc => pc.CartId == CartId && pc.ProductId == ProductId);
 
-            db.Carts.Add(c);
-            db.SaveChanges();
-            TempData["message"] = "Cosul a fost adaugat";
-            TempData["messageType"] = "alert-success";
+            if (productCart != null)
+            {
+                
+                if (Quantity > productCart.Product.Stock)
+                {
+                    TempData["message"] = $"Stock limit exceeded! Only {productCart.Product.Stock} items available.";
+                    TempData["messageType"] = "alert-warning";
+                }
+                else if (Quantity > 0)
+                {
+                    productCart.Quantity = Quantity;
+                    db.SaveChanges();
+                }
+            }
+
             return RedirectToAction("Index");
         }
 
-        private void SetAccessRights()
+        //Functie care sterge un produs din cosul de cumparaturi
+        [HttpPost]
+        [Authorize(Roles = "User,Colaborator,Admin")]
+        public IActionResult RemoveProduct(int CartId, int ProductId)
         {
-            ViewBag.AfisareButoane = false;
+            var productCart = db.ProductCarts
+                .FirstOrDefault(pc => pc.CartId == CartId && pc.ProductId == ProductId);
 
-            if (User.IsInRole("Editor") || User.IsInRole("User"))
+            if (productCart != null)
             {
-                ViewBag.AfisareButoane = true;
+                db.ProductCarts.Remove(productCart);
+                db.SaveChanges();
             }
 
-            ViewBag.EsteAdmin = User.IsInRole("Admin");
-
-            ViewBag.UserCurent = _userManager.GetUserId(User);
+            return RedirectToAction("Index");
         }
 
-        private int GetTotalPrice(int cartId)
+        //Functie care finalizeaza comanda. Prin finalizare se scade stocul produselor din cosul de cumparaturi si se adauga o noua comanda in baza de date
+        [HttpPost]
+        [Authorize(Roles = "User,Colaborator,Admin")]
+        public IActionResult FinalizeOrder()
         {
-            var totalPrice = 0;
-            var productCarts = db.ProductCarts
-                .Where(b => b.CartId == cartId)
-                .Include("Product")
-                .ToList();
-            foreach (var productCart in productCarts)
+            var userId = _userManager.GetUserId(User);
+
+
+            var cart = db.Carts
+                .Include(c => c.ProductCarts)
+                .ThenInclude(pc => pc.Product)
+                .FirstOrDefault(c => c.UserId == userId);
+
+            if (cart == null || !cart.ProductCarts.Any())
             {
-                totalPrice += productCart.Product.Price * productCart.Quantity;
+                TempData["message"] = "Cart is empty!";
+                TempData["messageType"] = "alert-warning";
+                return RedirectToAction("Index");
             }
-            return totalPrice;
+
+            int totalPrice = 0;
+
+            foreach (var productCart in cart.ProductCarts)
+            {
+                var product = productCart.Product;
+
+                if (product.Stock < productCart.Quantity)
+                {
+                    TempData["message"] = $"Insufficient stock for {product.Title}. Available stock: {product.Stock}";
+                    TempData["messageType"] = "alert-danger";
+                    return RedirectToAction("Index");
+                }
+                product.Stock -= productCart.Quantity;
+                totalPrice += product.Price * productCart.Quantity;
+            }
+            var order = new Order
+            {
+                UserId = userId,
+                Date = DateTime.Now,
+                TotalPrice = totalPrice
+            };
+
+            db.Orders.Add(order);
+            cart.ProductCarts.Clear();
+            db.SaveChanges();
+
+            TempData["message"] = "Order finalized successfully!";
+            TempData["messageType"] = "alert-success";
+
+            return RedirectToAction("Index");
         }
+
+
+
     }
 }

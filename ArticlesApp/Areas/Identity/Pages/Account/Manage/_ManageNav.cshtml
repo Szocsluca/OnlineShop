@@ -1,0 +1,54 @@
+﻿@inject SignInManager<ApplicationUser> SignInManager
+@inject ApplicationDbContext DbContext
+@using Microsoft.EntityFrameworkCore
+
+@{
+    var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+    var unconfirmedProductCount = await DbContext.Products.CountAsync(p => !p.IsVisible); 
+}
+
+<ul class="nav nav-pills flex-column">
+    <li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Profile</a></li>
+    <li class="nav-item"><a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email">Email</a></li>
+    <li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">Password</a></li>
+
+    @if (hasExternalLogins)
+    {
+        <li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins">External logins</a></li>
+    }
+    <li class="nav-item"><a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-page="./TwoFactorAuthentication">Two-factor authentication</a></li>
+    <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">Personal data</a></li>
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.ConfirmProductsNavClass(ViewContext)" id="confirm-products" asp-page="./ConfirmProducts">
+            Confirmare Produse
+            @if (unconfirmedProductCount > 0)
+            {
+                <span class="badge rounded-pill bg-danger">@unconfirmedProductCount</span>
+            }
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.ManageOrdersNavClass(ViewContext)" id="manage-orders" asp-page="./ManageOrders">
+            Manage Orders
+        </a>
+    </li>
+
+</ul>
+
+<style>
+    .badge {
+        font-size: 0.8rem;
+        color: white;
+        padding: 0.2em 0.5em;
+        vertical-align: middle;
+    }
+
+    .bg-danger {
+        background-color: #dc3545; 
+    }
+
+    .rounded-pill {
+        border-radius: 50rem;
+    }
+</style>
+

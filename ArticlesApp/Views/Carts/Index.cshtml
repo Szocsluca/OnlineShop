@@ -1,30 +1,241 @@
-﻿<br />
-<br />
-
+﻿
 @if (TempData["message"] != null)
 {
     <div class="alert @ViewBag.Alert p-3 rounded-3 text-center mb-5">
         @ViewBag.Message
     </div>
 }
-<br />
 
-<a asp-controller="Carts" asp-action="New" class="btn btn-success rounded-pill mb-5">
-    <i class="bi bi-plus"></i> Adăugare cos de cumparaturi
-</a>
+<h2 class="text-center mb-4">Coșul meu</h2>
 
-<div class="row">
-    @foreach (var cart in ViewBag.Carts)
-    {
-        <div class="col-4 mb-4">
-            <div class="card">
+@{
+    var carts = ViewBag.Carts as List<ArticlesApp.Models.Cart>; 
+}
+
+@if (carts == null || !carts.Any() || !carts.Any(cart => cart.ProductCarts != null && cart.ProductCarts.Any()))
+{
+    <div class="text-center mt-5">
+        <img src="/images/empty-cart.png" alt="Empty Cart" class="img-fluid" style="max-width: 200px;" />
+        <h4 class="text-muted mt-3">Coșul tău este gol!</h4>
+        <p>Adaugă produse pentru a le comanda.</p>
+        <a href="/Products" class="btn btn-primary mt-3">Începe să cumperi</a>
+    </div>
+}
+else
+{
+<div class="container">
+    <div class="row">
+        <!-- Cart Items -->
+        <div class="col-lg-8">
+            @foreach (var cart in ViewBag.Carts)
+            {
+                @foreach (var productCart in cart.ProductCarts)
+                {
+                    <div class="card mb-4 shadow-sm">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <div class="position-relative overflow-hidden" style="height: 150px;">
+                                    <img src="@productCart.Product.Image" alt="Product Image" class="img-fluid rounded-start" style="object-fit: cover; height: 100%; width: 100%;" />
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">@productCart.Product.Title</h5>
+                                    <p class="card-text">
+                                        <strong>Vândut de:</strong> Magazin<br />
+                                        <strong>Disponibilitate:</strong>
+                                        @if (productCart.Product.Stock > 0)
+                                        {
+                                            <span class="text-success">În stoc</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger">Stoc epuizat</span>
+                                        }
+                                    </p>
+                                    <p class="card-text text-danger fw-bold">€@productCart.Product.Price</p>
+                                    <div class="d-flex align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <!-- Decrease Button -->
+                                            <button type="button" class="btn btn-outline-secondary btn-sm quantity-decrease"
+                                                    data-product-id="@productCart.Product.Id"
+                                                    data-cart-id="@cart.Id"
+                                                    data-max-stock="@productCart.Product.Stock">
+                                                -
+                                            </button>
+
+                                            <!-- Quantity Field -->
+                                            <input type="number" name="Quantity" value="@productCart.Quantity"
+                                                   class="form-control mx-2 text-center quantity-field"
+                                                   style="width: 60px;"
+                                                   data-product-id="@productCart.Product.Id"
+                                                   data-cart-id="@cart.Id"
+                                                   data-max-stock="@productCart.Product.Stock"
+                                                   min="1" readonly />
+
+                                            <!-- Increase Button -->
+                                            <button type="button" class="btn btn-outline-secondary btn-sm quantity-increase"
+                                                    data-product-id="@productCart.Product.Id"
+                                                    data-cart-id="@cart.Id"
+                                                    data-max-stock="@productCart.Product.Stock">
+                                                +
+                                            </button>
+                                        </div>
+
+
+                                        @if (TempData["message"] != null)
+                                        {
+                                            <div class="alert @TempData["messageType"] p-2 mt-3 text-center">
+                                                @TempData["message"]
+                                            </div>
+                                        }
+
+                                        <form method="post" asp-controller="Carts" asp-action="RemoveProduct" class="ms-auto">
+                                            <input type="hidden" name="CartId" value="@cart.Id" />
+                                            <input type="hidden" name="ProductId" value="@productCart.Product.Id" />
+                                            <button type="submit" class="btn btn-link text-danger">Șterge</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title" name="Name">@cart.Name</h5>
-                    <h5 class="card-title" name="Price">$@cart.TotalPrice</h5>
-                    <br />
-                    <a asp-controller="Carts" asp-action="Show" asp-route-id="@cart.Id" class="btn alert-success">Afisare Cos de cumparaturi</a>
+                    <h5 class="card-title text-center fw-bold">Sumar Comandă</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Cost produse:</span>
+                            <span>€@ViewBag.TotalPrice</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Cost livrare:</span>
+                            @if(ViewBag.TotalPrice >= 50 )
+                            {
+                                <span>€0</span>
+                            }
+                            
+                            else
+                            {
+                                <span>€7</span>
+                            }
+                            
+                        </li>
+                    </ul>
+                    <div class="card-body text-center">
+                        @if (ViewBag.TotalPrice >= 50)
+                        {
+                            <h4 class="fw-bold">Total: €@(ViewBag.TotalPrice)</h4>
+                        }
+                        else
+                        {
+                            <h4 class="fw-bold">Total: €@(ViewBag.TotalPrice + 7)</h4>
+                        }
+                        <form asp-controller="Carts" asp-action="FinalizeOrder" method="post">
+                            <button type="submit" class="btn btn-danger w-100 mt-3">
+                                Finalizează Comanda
+                            </button>
+                        </form>
+
+                    </div>
                 </div>
             </div>
         </div>
-    }
+    </div>
 </div>
+}
+<style>
+    .card-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .card-text {
+        font-size: 0.9rem;
+    }
+
+    .btn-outline-secondary {
+        padding: 0.2rem 0.5rem;
+    }
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const decreaseButtons = document.querySelectorAll(".quantity-decrease");
+    const increaseButtons = document.querySelectorAll(".quantity-increase");
+
+    // Handle Decrease Button Click
+    decreaseButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            const productId = this.getAttribute("data-product-id");
+            const cartId = this.getAttribute("data-cart-id");
+            const maxStock = parseInt(this.getAttribute("data-max-stock"));
+            const quantityField = document.querySelector(
+                `.quantity-field[data-product-id='${productId}'][data-cart-id='${cartId}']`
+            );
+            const currentQuantity = parseInt(quantityField.value);
+
+            if (currentQuantity > 1) {
+                quantityField.value = currentQuantity - 1;
+                submitQuantityForm(cartId, productId, quantityField.value);
+            }
+        });
+    });
+// Handle Increase Button Click
+
+increaseButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            const productId = this.getAttribute("data-product-id");
+            const cartId = this.getAttribute("data-cart-id");
+            const maxStock = parseInt(this.getAttribute("data-max-stock"));
+            const quantityField = document.querySelector(
+                `.quantity-field[data-product-id='${productId}'][data-cart-id='${cartId}']`
+            );
+            const currentQuantity = parseInt(quantityField.value);
+
+            if (currentQuantity < maxStock) {
+                quantityField.value = currentQuantity + 1;
+                submitQuantityForm(cartId, productId, quantityField.value);
+            } else {
+                alert(`You cannot add more than ${maxStock} items of this product.`);
+            }
+        });
+    });
+
+    // Function to Submit the Form
+    function submitQuantityForm(cartId, productId, quantity) {
+        const form = document.createElement("form");
+        form.method = "post";
+        form.action = `/Carts/UpdateQuantity`;
+
+        const cartInput = document.createElement("input");
+        cartInput.type = "hidden";
+        cartInput.name = "CartId";
+        cartInput.value = cartId;
+
+        const productInput = document.createElement("input");
+        productInput.type = "hidden";
+        productInput.name = "ProductId";
+        productInput.value = productId;
+
+        const quantityInput = document.createElement("input");
+        quantityInput.type = "hidden";
+        quantityInput.name = "Quantity";
+        quantityInput.value = quantity;
+
+        form.appendChild(cartInput);
+        form.appendChild(productInput);
+        form.appendChild(quantityInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+});
+</script>
+
+

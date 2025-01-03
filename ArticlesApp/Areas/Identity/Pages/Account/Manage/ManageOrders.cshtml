@@ -1,0 +1,39 @@
+﻿@page
+@model ArticlesApp.Areas.Identity.Pages.Account.Manage.ManageOrdersModel
+@{
+    ViewData["Title"] = "Manage Orders";
+    ViewData["ActivePage"] = ManageNavPages.ManageOrders;
+}
+
+<h3>Manage Orders</h3>
+
+<div class="container mt-3">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @if (Model.Orders != null && Model.Orders.Any())
+        {
+            @foreach (var order in Model.Orders)
+            {
+                <div class="col">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">Order #@order.Id</h5>
+                            <p class="card-text">
+                                <strong>User:</strong> @order.User.Email
+                            </p>
+                            <p class="card-text">
+                                <strong>Date:</strong> @order.Date.ToString("yyyy-MM-dd HH:mm")
+                            </p>
+                            <p class="card-text">
+                                <strong>Total Price:</strong> €@order.TotalPrice
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-muted text-center">No orders found.</p>
+        }
+    </div>
+</div>

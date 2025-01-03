@@ -23,25 +23,8 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Afisare produse</a>
-                        </li>
                         @if (User.IsInRole("Admin"))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark position-relative" asp-area="" asp-controller="Products" asp-action="Confirm">
-                                    Cereri 
-                                    @if (ViewBag.UnconfirmedCount > 0)
-                                    {
-                                        <span class="badge bg-danger rounded-pill position-absolute top-20 start-100 translate-middle">
-                                            @ViewBag.UnconfirmedCount
-                                        </span>
-                                    }
-                                </a>
-                            </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Categories" asp-action="Index">Afisare categorii</a>
                             </li>
@@ -53,7 +36,7 @@
                             </li>
                         }
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Carts" asp-action="Index">Coșuri de cumpărături</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Carts" asp-action="Index">Coș de cumpărături</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />

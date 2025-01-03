@@ -91,10 +91,11 @@ namespace ArticlesApp.Controllers
 				.Include("User").Include("Reviews.User")
                               .Where(art => art.Id == id)
 							  .First();
-            ViewBag.UserCarts = db.Carts
-                                      .Where(c => c.UserId == _userManager.GetUserId(User))
-                                      .ToList();
-			SetAccessRights();
+            var userId = _userManager.GetUserId(User);
+            var userCart = db.Carts.FirstOrDefault(c => c.UserId == userId);
+
+            ViewBag.UserCartId = userCart?.Id;
+            SetAccessRights();
 			if(TempData.ContainsKey("message"))
 			{
                 ViewBag.Message = TempData["message"];

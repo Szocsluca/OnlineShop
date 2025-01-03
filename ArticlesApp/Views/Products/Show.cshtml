@@ -2,53 +2,69 @@
 
 @if (TempData["message"] != null)
 {
-    <div class="alert @ViewBag.Alert text-center p-3 rounded-3 mb-5">
+    <div class="alert @ViewBag.Alert text-center p-3 rounded-3 mb-4">
         @TempData["message"]
     </div>
 }
-<div class="card">
 <div class="container mt-4">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h2 class="card-title text-center text-success py-3 rounded-2">@Model.Title</h2>
-            <div class="position-relative overflow-hidden rounded-3 mb-4" style="height: 400px; max-width: 100%; display: flex; justify-content: center; align-items: center;">
-                <img src="@Model.Image" alt="Product Image" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;" />
-            </div>
+    <div class="row">
+        <!-- Product Image and Details -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title text-success text-center py-3">@Model.Title</h2>
+                    <div class="position-relative overflow-hidden rounded-3 mb-4" style="height: 500px; display: flex; justify-content: center; align-items: center;">
+                        <img src="@Model.Image" alt="Product Image" class="img-fluid" style="max-height: 100%; object-fit: contain;" />
+                    </div>
 
-            <p class="card-text text-muted text-center">@Model.Description</p>
-            <div class="d-flex justify-content-between align-items-center mt-4">
-                <span class="badge bg-primary"><i class="bi bi-tag"></i> @Model.Category.CategoryName</span>
-                <span class="fs-3 text-danger fw-bold">€@Model.Price</span>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary"><i class="bi bi-tag"></i> @Model.Category.CategoryName</span>
+                        <span class="fs-3 text-danger fw-bold">€@Model.Price</span>
+                    </div>
+
+                    <p class="mt-4 text-muted">@Model.Description</p>
+                </div>
             </div>
         </div>
-        <div class="card-footer bg-white d-flex justify-content-between">
-            <a class="btn btn-outline-success" href="/Products/Edit/@Model.Id"><i class="bi bi-pencil"></i> Edit Product</a>
-            <form method="post" asp-controller="Products" asp-action="Delete" asp-route-id="@Model.Id" class="mb-0">
-                <button class="btn btn-outline-danger" type="submit"><i class="bi bi-trash"></i> Delete Product</button>
-            </form>
+
+        <!-- Add to Cart & Actions -->
+        <div class="col-md-4">
+            <div class="card shadow-sm p-3">
+                <div class="card-body">
+                    <h4 class="card-title text-center text-danger fw-bold">€@Model.Price</h4>
+                    <form method="post" asp-controller="Products" asp-action="AddCart" class="mt-3">
+                        <input type="hidden" name="ProductId" value="@Model.Id" />
+                        <input type="hidden" name="CartId" value="@ViewBag.UserCartId" />
+
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number" id="quantity" name="Quantity" class="form-control" placeholder="Enter quantity" min="1" required />
+                        </div>
+
+                        <button class="btn btn-success w-100 py-2">
+                            <i class="bi bi-cart-plus"></i> Add to Cart
+                        </button>
+                    </form>
+                    <hr>
+                    <button class="btn btn-outline-primary w-100 mt-2">
+                        <i class="bi bi-heart"></i> Add to Wishlist
+                    </button>
+                </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="mt-3 p-3 rounded-3 bg-light border">
+                <h5 class="text-center mb-3">Why Choose Us?</h5>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-truck"></i> Free shipping on orders over €50</li>
+                    <li><i class="bi bi-clock"></i> 30-day return policy</li>
+                    <li><i class="bi bi-star"></i> Rated 4.8/5 by 1,000+ customers</li>
+                </ul>
+            </div>
         </div>
     </div>
 
-    <form method="post" asp-controller = "Products" asp-action="AddCart">
-        <input type="hidden" name="ProductId" value="@Model.Id" />
-        <div class="d-flex flex-row justify-content-center p-3 border-1 border-top">
-            <div>
-                <select name="CartId" class="form-control">
-                    <option selected>Adauga produsul intr-un cos</option>
-                    @foreach (var cart in ViewBag.UserCarts)
-				    {
-					    <option value="@cart.Id">@cart.Name</option>
-				    }
-                </select>
-            </div>
-            <input type="number" name="Quantity" class="form-control" placeholder="Cantitate" />
-            <div>
-                <input type="submit" class="btn btn-success alert-success" value="+" />
-            </div>
-        </div>
-    </form>
-    </div>
-
+    <!-- Reviews Section -->
     <div class="mt-5">
         <h4 class="mb-3">Reviews</h4>
         @foreach (var rev in Model.Reviews)
@@ -153,3 +169,5 @@
         });
     });
 </script>
+
+
