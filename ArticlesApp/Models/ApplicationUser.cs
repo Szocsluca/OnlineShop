@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ArticlesApp.Models
 {
@@ -6,7 +8,10 @@ namespace ArticlesApp.Models
     {
         public virtual ICollection<Review>? Reviews{ get; set; }
         public virtual ICollection<Product>? Products { get; set; }
-        public virtual ICollection<Cart>? Carts { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
 
+        [NotMapped]
+        public IEnumerable<SelectListItem>? AllRoles { get; set; }
     }
 }
