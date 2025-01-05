@@ -9,6 +9,9 @@
 
   <ItemGroup>
     <Compile Remove="Areas\Identity\Pages\Account\Manage\ConfirmProduct.cshtml.cs" />
+    <Compile Remove="Migrations\20250102091618_m3.Designer.cs" />
+    <Compile Remove="Migrations\20250104110836_RemoveColectieDeCartsLaUser.cs" />
+    <Compile Remove="Migrations\20250104110836_RemoveColectieDeCartsLaUser.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
