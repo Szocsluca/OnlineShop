@@ -169,7 +169,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const decreaseButtons = document.querySelectorAll(".quantity-decrease");
     const increaseButtons = document.querySelectorAll(".quantity-increase");
 
-    // Handle Decrease Button Click
     decreaseButtons.forEach(button => {
         button.addEventListener("click", function () {
             const productId = this.getAttribute("data-product-id");
@@ -186,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
-// Handle Increase Button Click
+
 
 increaseButtons.forEach(button => {
         button.addEventListener("click", function () {
@@ -202,7 +201,7 @@ increaseButtons.forEach(button => {
                 quantityField.value = currentQuantity + 1;
                 submitQuantityForm(cartId, productId, quantityField.value);
             } else {
-                alert(`You cannot add more than ${maxStock} items of this product.`);
+                alert(`Nu poti adauga mai mult de ${maxStock} elemente din acest produs.`);
             }
         });
     });

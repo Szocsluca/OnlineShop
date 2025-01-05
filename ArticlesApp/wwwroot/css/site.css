@@ -20,15 +20,73 @@ html {
     min-height: 100%;
 }
 
-body {
-    margin-bottom: 60px;
+.navbar {
+    background-color: #ffc107 !important;
+    border-bottom: 2px solid #ff8f00; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); 
 }
 
-.navbar {
-    background-color: #dfe6e9 !important;
-    border: none !important;
-    box-shadow: 0 3px 12px #636e72 !important;
+.navbar-brand img {
+    height: 40px; 
+    max-height: 100%;
 }
+
+.navbar-nav .nav-link {
+    color: #2c2c2c !important; 
+    font-weight: 500;
+    font-family: 'Montserrat', sans-serif;
+    transition: color 0.2s ease-in-out;
+}
+
+    .navbar-nav .nav-link:hover {
+        color: #0056b3 !important; 
+        text-decoration: none;
+    }
+
+.navbar-toggler {
+    border-color: transparent;
+}
+
+.navbar-toggler-icon {
+    background-color: #2c2c2c; 
+    border-radius: 2px;
+    width: 25px;
+    height: 2px;
+    position: relative;
+}
+
+    .navbar-toggler-icon::before,
+    .navbar-toggler-icon::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        width: 25px;
+        height: 2px;
+        background-color: #2c2c2c;
+        border-radius: 2px;
+    }
+
+    .navbar-toggler-icon::before {
+        top: -7px;
+    }
+
+    .navbar-toggler-icon::after {
+        top: 7px;
+    }
+
+
+.navbar .bi-person,
+.navbar .bi-cart {
+    font-size: 1.2rem;
+    color: #2c2c2c;
+    margin-right: 8px;
+}
+
+    .navbar .bi-person:hover,
+    .navbar .bi-cart:hover {
+        color: #0056b3;
+    }
+
 
 a.nav-link {
     color: #2c2c2c !important;
@@ -66,17 +124,6 @@ a.nav-link {
         color: #00b894 !important;
     }
 
-.footer-position {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    background-color: #ffffff;
-    text-align: center;
-    box-shadow: 0 3px 12px #636e72;
-}
-
-
 .truncate {
     overflow: hidden;
     display: -webkit-box;
@@ -84,3 +131,25 @@ a.nav-link {
     -moz-box-orient: vertical;
     -webkit-line-clamp: 5;
 }
+
+.container {
+    padding-top: 10px; 
+}
+
+.rating {
+    font-size: 1.2rem; 
+    display: flex;
+    align-items: center;
+}
+
+    .rating .bi-star-fill {
+        color: #ffc107; 
+        margin-right: 2px;
+    }
+
+    .rating .bi-star {
+        color: #ccc; 
+        margin-right: 2px;
+    }
+
+

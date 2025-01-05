@@ -78,16 +78,16 @@ public class LoginModel : PageModel
             {
                 _logger.LogInformation("User logged in.");
 
-                // Get the user
+               
                 var user = await _userManager.FindByEmailAsync(Input.Email);
 
                 if (user != null)
                 {
-                    // Check if the user already has a cart
+                    
                     var existingCart = _db.Carts.FirstOrDefault(c => c.UserId == user.Id);
                     if (existingCart == null)
                     {
-                        // Create a new cart if none exists
+                       
                         var newCart = new Cart
                         {
                             UserId = user.Id,

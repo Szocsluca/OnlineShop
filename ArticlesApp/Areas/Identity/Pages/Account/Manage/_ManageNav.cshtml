@@ -18,20 +18,24 @@
     }
     <li class="nav-item"><a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-page="./TwoFactorAuthentication">Two-factor authentication</a></li>
     <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">Personal data</a></li>
-    <li class="nav-item">
-        <a class="nav-link @ManageNavPages.ConfirmProductsNavClass(ViewContext)" id="confirm-products" asp-page="./ConfirmProducts">
-            Confirmare Produse
-            @if (unconfirmedProductCount > 0)
-            {
-                <span class="badge rounded-pill bg-danger">@unconfirmedProductCount</span>
-            }
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link @ManageNavPages.ManageOrdersNavClass(ViewContext)" id="manage-orders" asp-page="./ManageOrders">
-            Manage Orders
-        </a>
-    </li>
+    @if(User.IsInRole("Admin"))
+    {
+        <li class="nav-item">
+            <a class="nav-link @ManageNavPages.ConfirmProductsNavClass(ViewContext)" id="confirm-products" asp-page="./ConfirmProducts">
+                Confirmare Produse
+                @if (unconfirmedProductCount > 0)
+                {
+                    <span class="badge rounded-pill bg-danger">@unconfirmedProductCount</span>
+                }
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @ManageNavPages.ManageOrdersNavClass(ViewContext)" id="manage-orders" asp-page="./ManageOrders">
+                Manage Orders
+            </a>
+        </li>
+    }
+
 
 </ul>
 

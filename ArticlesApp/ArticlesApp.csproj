@@ -14,6 +14,7 @@
   <ItemGroup>
     <Content Remove="Areas\Identity\Pages\Account\Manage\ConfirmProduct.cshtml" />
     <Content Remove="Areas\Identity\Pages\Account\Manage\ConfirmProducts.razor" />
+    <Content Remove="wwwroot\images\background-confirm.jpg" />
   </ItemGroup>
 
   <ItemGroup>

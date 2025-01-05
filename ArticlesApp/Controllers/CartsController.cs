@@ -83,6 +83,12 @@ namespace ArticlesApp.Controllers
         {
             var userId = _userManager.GetUserId(User);
 
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["message"] = "Invalid UserId. Unable to process the order.";
+                TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Index");
+            }
 
             var cart = db.Carts
                 .Include(c => c.ProductCarts)
@@ -96,37 +102,79 @@ namespace ArticlesApp.Controllers
                 return RedirectToAction("Index");
             }
 
-            int totalPrice = 0;
-
-            foreach (var productCart in cart.ProductCarts)
+            using (var transaction = db.Database.BeginTransaction())
             {
-                var product = productCart.Product;
-
-                if (product.Stock < productCart.Quantity)
+                try
                 {
-                    TempData["message"] = $"Insufficient stock for {product.Title}. Available stock: {product.Stock}";
+                    int totalPrice = 0;
+
+                    foreach (var productCart in cart.ProductCarts)
+                    {
+                        var product = db.Products.FirstOrDefault(p => p.Id == productCart.ProductId);
+
+                        if (product == null)
+                        {
+                            TempData["message"] = $"Product {productCart.Product.Title} no longer exists.";
+                            TempData["messageType"] = "alert-danger";
+                            return RedirectToAction("Index");
+                        }
+
+                        if (product.Stock < productCart.Quantity)
+                        {
+                            TempData["message"] = $"Insufficient stock for {product.Title}. Available stock: {product.Stock}.";
+                            TempData["messageType"] = "alert-danger";
+                            return RedirectToAction("Index");
+                        }
+
+                        product.Stock -= productCart.Quantity;
+                        totalPrice += product.Price * productCart.Quantity;
+                    }
+
+                    var order = new Order
+                    {
+                        UserId = userId,
+                        Date = DateTime.Now,
+                        TotalPrice = totalPrice
+                    };
+
+                    db.Orders.Add(order);
+                    cart.ProductCarts.Clear();
+                    db.SaveChanges();
+
+                    transaction.Commit();
+
+                
+                    return RedirectToAction("OrderConfirmation", new { orderId = order.Id });
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    TempData["message"] = "An error occurred while finalizing the order. Please try again.";
                     TempData["messageType"] = "alert-danger";
                     return RedirectToAction("Index");
                 }
-                product.Stock -= productCart.Quantity;
-                totalPrice += product.Price * productCart.Quantity;
             }
-            var order = new Order
-            {
-                UserId = userId,
-                Date = DateTime.Now,
-                TotalPrice = totalPrice
-            };
-
-            db.Orders.Add(order);
-            cart.ProductCarts.Clear();
-            db.SaveChanges();
-
-            TempData["message"] = "Order finalized successfully!";
-            TempData["messageType"] = "alert-success";
-
-            return RedirectToAction("Index");
         }
+
+
+        [Authorize(Roles = "User,Colaborator,Admin")]
+        public IActionResult OrderConfirmation(int orderId)
+        {
+            var order = db.Orders
+                .Include(o => o.User)
+                .FirstOrDefault(o => o.Id == orderId);
+
+            if (order == null)
+            {
+                TempData["message"] = "Order not found!";
+                TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Index");
+            }
+
+            return View(order);
+        }
+
+
 
 
 

@@ -26,28 +26,38 @@ namespace ArticlesApp.Controllers
         public IActionResult Index(List<int> categoryIds)
         {
             ViewBag.Categories = db.Categories.ToList();
-            IQueryable<Product> products = db.Products.Include("Category");
+            IQueryable<Product> products = db.Products
+                .Include(p => p.Category)
+                .Include(p => p.Reviews); 
+
             if (categoryIds != null && categoryIds.Count > 0)
             {
                 products = products.Where(p => categoryIds.Contains(p.CategoryId));
             }
 
+            foreach (var product in products)
+            {
+                if (product.Reviews != null && product.Reviews.Any())
+                {
+                    product.Rating = product.Reviews.Average(r => r.Score);
+                }
+                else
+                {
+                    product.Rating = 0;
+                }
+            }
+
             ViewBag.Products = products.ToList();
 
-   
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return PartialView("_ProductListPartial", ViewBag.Products);
             }
-            int unconfirmedCount = db.Products.Count(p => !p.IsVisible);
-            ViewBag.UnconfirmedCount = unconfirmedCount;
-
-            var pproducts = db.Products.ToList();
-            ViewBag.Products = pproducts;
-
 
             return View();
         }
+
+
 
 
 
@@ -69,7 +79,7 @@ namespace ArticlesApp.Controllers
             var product = db.Products.FirstOrDefault(p => p.Id == id);
             product.IsVisible = true;
             db.SaveChanges();
-            return RedirectToAction("Index"); 
+            return Redirect("/Identity/Account/Manage/ConfirmProducts");
         }
         [HttpPost]
         public IActionResult DeleteProductRequest(int id)
@@ -289,16 +299,24 @@ namespace ArticlesApp.Controllers
         //--------------------------------------------------------------------------------
         [Authorize(Roles = "Colaborator,Admin")]
         [HttpPost]
-		public ActionResult Delete(int id)
-		{
-			Product product = db.Products.Find(id);
-			db.Products.Remove(product);
-			db.SaveChanges();
-			TempData["message"] = "Produsul a fost sters";
-			return RedirectToAction("Index");
-		}
+        public ActionResult Delete(int id)
+        {
+            Product product = db.Products.Find(id);
+            var productCarts = db.ProductCarts.Where(pc => pc.ProductId == id).ToList();
 
-		private void SetAccessRights()
+            if (productCarts.Any())
+            {
+                db.ProductCarts.RemoveRange(productCarts);
+            }
+            db.Products.Remove(product);
+            db.SaveChanges();
+            TempData["message"] = "Produsul a fost șters și eliminat din toate coșurile.";
+            TempData["messageType"] = "alert-success";
+            return RedirectToAction("Index");
+        }
+
+
+        private void SetAccessRights()
         {
             ViewBag.AfisareButoane = false;
             ViewBag.UserCurent = _userManager.GetUserId(User);

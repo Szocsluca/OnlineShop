@@ -19,10 +19,22 @@
 
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="badge bg-primary"><i class="bi bi-tag"></i> @Model.Category.CategoryName</span>
-                        <span class="fs-3 text-danger fw-bold">€@Model.Price</span>
                     </div>
 
                     <p class="mt-4 text-muted">@Model.Description</p>
+                    @if (User.IsInRole("Admin") || User.IsInRole("Colaborator"))
+                    {
+                        <div class="mt-4">
+                            <a asp-controller="Products" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary me-2">
+                                <i class="bi bi-pencil-square"></i> Editeaza
+                            </a>
+                            <form method="post" asp-controller="Products" asp-action="Delete" asp-route-id="@Model.Id" style="display: inline;">
+                                <button type="submit" class="btn btn-outline-danger">
+                                    <i class="bi bi-trash"></i> Sterge
+                                </button>
+                            </form>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -36,25 +48,24 @@
                         <input type="hidden" name="CartId" value="@ViewBag.UserCartId" />
 
                         <div class="mb-3">
-                            <label for="quantity" class="form-label">Quantity</label>
-                            <input type="number" id="quantity" name="Quantity" class="form-control" placeholder="Enter quantity" min="1" required />
+                            <label for="quantity" class="form-label">Cantitate</label>
+                            <input type="number" id="quantity" name="Quantity" class="form-control" placeholder="Introdu cantitatea" min="1" required />
                         </div>
 
                         <button class="btn btn-success w-100 py-2">
-                            <i class="bi bi-cart-plus"></i> Add to Cart
+                            <i class="bi bi-cart-plus"></i> Adauga in cos
                         </button>
                     </form>
                     <hr>
                 </div>
             </div>
 
-\
             <div class="mt-3 p-3 rounded-3 bg-light border">
-                <h5 class="text-center mb-3">Why Choose Us?</h5>
+                <h5 class="text-center mb-3">De ce sa ne alegi pe noi?</h5>
                 <ul class="list-unstyled">
-                    <li><i class="bi bi-truck"></i> Free shipping on orders over €50</li>
-                    <li><i class="bi bi-clock"></i> 30-day return policy</li>
-                    <li><i class="bi bi-star"></i> Rated 4.8/5 by 1,000+ customers</li>
+                    <li><i class="bi bi-truck"></i> Transport gratuit la comenzi de peste €50</li>
+                    <li><i class="bi bi-clock"></i> Retur in maxim 30 de zile </li>
+                    <li><i class="bi bi-star"></i> Evaluat cu 4.8/5 de peste 1000 de clienti</li>
                 </ul>
             </div>
         </div>
@@ -62,7 +73,7 @@
 
  
     <div class="mt-5">
-        <h4 class="mb-3">Reviews</h4>
+        <h4 class="mb-3">Recenzii</h4>
         @foreach (var rev in Model.Reviews)
         {
             <div class="card mb-3 shadow-sm">
@@ -79,11 +90,11 @@
                             @if (rev.UserId == ViewBag.UserCurent)
                             {
                                 <a class="btn btn-outline-primary me-2" asp-controller="Reviews" asp-action="Edit" asp-route-id="@rev.Id">
-                                    <i class="bi bi-pencil-square"></i> Edit
+                                    <i class="bi bi-pencil-square"></i> Editeaza
                                 </a>
                             }
                             <form method="post" asp-controller="Reviews" asp-action="Delete" asp-route-id="@rev.Id" class="mb-0">
-                                <button class="btn btn-outline-danger" type="submit"><i class="bi bi-trash"></i> Delete</button>
+                                <button class="btn btn-outline-danger" type="submit"><i class="bi bi-trash"></i> Sterge</button>
                             </form>
                         </div>
                     }
@@ -97,11 +108,11 @@
             <form method="post" asp-controller="Products" asp-action="Show">
                 <input type="hidden" name="ProductId" value="@Model.Id" />
                 <div class="mb-3">
-                    <label for="Content" class="form-label">Review Content</label>
+                    <label for="Content" class="form-label">Continut recenzie</label>
                     <textarea class="form-control" id="Content" name="Content" rows="3"></textarea>
                 </div>
                 <div class="mb-3">
-                    <label for="Score" class="form-label">Product Rating</label>
+                    <label for="Score" class="form-label">Rating produs</label>
                     <div class="star-rating">
                         <span class="star" data-value="1">&#9733;</span>
                         <span class="star" data-value="2">&#9733;</span>
@@ -111,7 +122,7 @@
                     </div>
                     <input type="hidden" name="Score" />
                 </div>
-                <button class="btn btn-success" type="submit">Add Review</button>
+                <button class="btn btn-success" type="submit">Adauga o recenzie</button>
             </form>
         </div>
     </div>
