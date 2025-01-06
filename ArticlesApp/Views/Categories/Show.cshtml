@@ -1,27 +1,50 @@
-﻿
-@model ArticlesApp.Models.Category
+﻿@model ArticlesApp.Models.Category
 
+<div class="container mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h2 class="text-center text-primary fw-bold mb-4">@ViewBag.Title</h2>
+            <p class="text-center fs-4 text-muted">@Model.CategoryName</p>
 
-<h2>@ViewBag.Title</h2>
+            <hr class="my-4" />
 
-<br />
+            <div class="d-flex justify-content-center">
+           
+                <form method="post" asp-action="Delete" asp-controller="Categories" asp-route-id="@Model.Id" class="me-3">
+                    <button class="btn btn-danger" type="submit">
+                        <i class="bi bi-trash"></i> Sterge categoria
+                    </button>
+                </form>
 
-<p>@Model.CategoryName</p>
+             
+                <a class="btn btn-success" asp-action="Index" asp-controller="Categories">
+                    <i class="bi bi-list"></i> Afisare lista categorii
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
+<style>
+    .card {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-<form method="post" asp-action="Delete" asp-controller="Categories" asp-route-id="@Model.Id">
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
 
-    <button class="btn btn-danger" type="submit">Sterge categoria</button>
+    .btn {
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
 
-</form>
-
-
-<br />
-
-<a class="btn alert-success" asp-action="Index" asp-controller="Categories">Afisare lista categorii</a>
-
-
-<br />
-<hr />
-<br />
-
+        .btn:hover {
+            transform: scale(1.05);
+        }
+</style>

@@ -23,30 +23,47 @@ namespace ArticlesApp.Controllers
             _env = env;
         }
 
-        public IActionResult Index(List<int> categoryIds)
+        public IActionResult Index(List<int> categoryIds, string search, List<string> priceRange)
         {
             ViewBag.Categories = db.Categories.ToList();
             IQueryable<Product> products = db.Products
                 .Include(p => p.Category)
-                .Include(p => p.Reviews); 
+                .Include(p => p.Reviews);
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                products = products.Where(p => p.Title.Contains(search));
+            }
 
             if (categoryIds != null && categoryIds.Count > 0)
             {
                 products = products.Where(p => categoryIds.Contains(p.CategoryId));
             }
 
-            foreach (var product in products)
+            if (priceRange != null && priceRange.Count > 0)
             {
-                if (product.Reviews != null && product.Reviews.Any())
+                foreach (var range in priceRange)
                 {
-                    product.Rating = product.Reviews.Average(r => r.Score);
-                }
-                else
-                {
-                    product.Rating = 0;
+                    var prices = range.Split('-');
+                    if (prices.Length == 2 && decimal.TryParse(prices[0], out decimal minPrice) && decimal.TryParse(prices[1], out decimal maxPrice))
+                    {
+                        products = products.Where(p => p.Price >= minPrice && p.Price <= maxPrice);
+                    }
+                    else if (range.StartsWith(">") && decimal.TryParse(range.Substring(1), out decimal greaterThanPrice))
+                    {
+                        products = products.Where(p => p.Price > greaterThanPrice);
+                    }
                 }
             }
 
+            foreach (var product in products)
+            {
+                product.Rating = product.Reviews != null && product.Reviews.Any()
+                    ? product.Reviews.Average(r => r.Score)
+                    : 0;
+            }
+
+            ViewBag.SearchString = search;
             ViewBag.Products = products.ToList();
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -56,10 +73,6 @@ namespace ArticlesApp.Controllers
 
             return View();
         }
-
-
-
-
 
 
         [Authorize(Policy = "AdminOnly")]

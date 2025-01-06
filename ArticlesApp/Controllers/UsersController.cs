@@ -93,6 +93,8 @@ namespace ArticlesApp.Controllers
             var user = db.Users
                          .Include("Products")
                          .Include("Reviews")
+                         .Include("Orders")
+                         .Include("Cart")
                          .Where(u => u.Id == id)
                          .First();
 
@@ -104,6 +106,13 @@ namespace ArticlesApp.Controllers
                 }
             }
 
+            if (user.Orders.Count > 0)
+            {
+                foreach (var order in user.Orders)
+                {
+                    db.Orders.Remove(order);
+                }
+            }
 
             // stergem produsele utilizatorului si aparitiile acestora in cosuri
             if (user.Products.Count > 0)
@@ -120,6 +129,8 @@ namespace ArticlesApp.Controllers
                     db.Products.Remove(product);
                 }
             }
+
+            db.Carts.Remove(user.Cart);
 
             db.ApplicationUsers.Remove(user);
             db.SaveChanges();

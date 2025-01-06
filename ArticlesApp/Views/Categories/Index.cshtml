@@ -1,31 +1,57 @@
-﻿
-
-<h2>@ViewBag.Title</h2>
-<br />  
+﻿<h2 class="text-center mb-4">@ViewBag.Title</h2>
 
 @if (TempData.ContainsKey("message"))
 {
-    <h1>@ViewBag.message</h1>
+    <div class="alert alert-success text-center">@TempData["message"]</div>
 }
 
-<a class="btn btn-success" asp-action="Index" asp-controller="Products">Inapoi la produse</a>
+<div class="container">
+    <div class="d-flex justify-content-between mb-4">
+        <a class="btn btn-success" asp-action="Index" asp-controller="Products">
+            <i class="bi bi-arrow-left"></i> Inapoi la produse
+        </a>
+        <a class="btn btn-primary" asp-action="New" asp-controller="Categories">
+            <i class="bi bi-plus-circle"></i> Adauga o noua categorie
+        </a>
+    </div>
 
-<br />
-<br />
+    <div class="row">
+        @foreach (var category in ViewBag.Categories)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-center fw-bold">@category.CategoryName</h5>
+                        <div class="d-flex justify-content-center mt-4">
+                            <a class="btn btn-success me-2" asp-action="Show" asp-controller="Categories" asp-route-id="@category.Id">
+                                <i class="bi bi-eye"></i> Afisare categorie
+                            </a>
+                            <a class="btn btn-warning" asp-action="Edit" asp-controller="Categories" asp-route-id="@category.Id">
+                                <i class="bi bi-pencil"></i> Editare categorie
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
 
-@foreach (var category in ViewBag.Categories)
-{
-    @Html.Label("CategoryName", "Denumire categorie")
-    <p>@category.CategoryName</p>
-    <a class="btn alert-success" asp-action="Show" asp-controller="Categories" asp-route-id="@category.Id">Afisare categorie</a>
-    <a class="btn alert-success" asp-action="Edit" asp-controller="Categories" asp-route-id="@category.Id">Editare categorie</a>
+<style>
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-    <br />
-    <hr />
-    <br />
-}
-<br />
-<a class="btn btn-success" asp-action="New" asp-controller="Categories">Adauga o noua categorie</a>
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
 
-<br />
+    .btn {
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
 
+        .btn:hover {
+            transform: scale(1.05);
+        }
+</style>

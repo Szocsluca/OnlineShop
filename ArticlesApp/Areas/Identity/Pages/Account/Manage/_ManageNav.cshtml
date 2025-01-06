@@ -4,25 +4,48 @@
 
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
-    var unconfirmedProductCount = await DbContext.Products.CountAsync(p => !p.IsVisible); 
+    var unconfirmedProductCount = await DbContext.Products.CountAsync(p => !p.IsVisible);
 }
 
-<ul class="nav nav-pills flex-column">
-    <li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Profile</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email">Email</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">Password</a></li>
-
+<ul class="nav flex-column nav-pills">
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">
+            <i class="bi bi-person-circle me-2"></i> Profile
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email">
+            <i class="bi bi-envelope me-2"></i> Email
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">
+            <i class="bi bi-key me-2"></i> Password
+        </a>
+    </li>
     @if (hasExternalLogins)
     {
-        <li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins">External logins</a></li>
+        <li id="external-logins" class="nav-item">
+            <a class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" id="external-login" asp-page="./ExternalLogins">
+                <i class="bi bi-plug me-2"></i> External logins
+            </a>
+        </li>
     }
-    <li class="nav-item"><a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-page="./TwoFactorAuthentication">Two-factor authentication</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">Personal data</a></li>
-    @if(User.IsInRole("Admin"))
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-page="./TwoFactorAuthentication">
+            <i class="bi bi-shield-lock me-2"></i> Two-factor authentication
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">
+            <i class="bi bi-person-lines-fill me-2"></i> Personal data
+        </a>
+    </li>
+    @if (User.IsInRole("Admin"))
     {
         <li class="nav-item">
             <a class="nav-link @ManageNavPages.ConfirmProductsNavClass(ViewContext)" id="confirm-products" asp-page="./ConfirmProducts">
-                Confirmare Produse
+                <i class="bi bi-box-seam me-2"></i> Confirm Products
                 @if (unconfirmedProductCount > 0)
                 {
                     <span class="badge rounded-pill bg-danger">@unconfirmedProductCount</span>
@@ -31,28 +54,45 @@
         </li>
         <li class="nav-item">
             <a class="nav-link @ManageNavPages.ManageOrdersNavClass(ViewContext)" id="manage-orders" asp-page="./ManageOrders">
-                Manage Orders
+                <i class="bi bi-receipt me-2"></i> Manage Orders
             </a>
         </li>
     }
-
+    
 
 </ul>
 
 <style>
+    .nav-pills .nav-link {
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.25rem;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+        .nav-pills .nav-link.active {
+            background-color: #007bff !important;
+            color: #fff !important;
+            font-weight: bold;
+        }
+
+        .nav-pills .nav-link:hover {
+            background-color: #f8f9fa;
+            color: #007bff;
+        }
+
     .badge {
         font-size: 0.8rem;
         color: white;
-        padding: 0.2em 0.5em;
+        padding: 0.3em 0.6em;
         vertical-align: middle;
     }
 
     .bg-danger {
-        background-color: #dc3545; 
+        background-color: #dc3545;
     }
 
     .rounded-pill {
         border-radius: 50rem;
     }
 </style>
-

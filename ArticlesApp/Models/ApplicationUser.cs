@@ -8,10 +8,13 @@ namespace ArticlesApp.Models
     {
         public virtual ICollection<Review>? Reviews{ get; set; }
         public virtual ICollection<Product>? Products { get; set; }
+        public virtual ICollection<Order>? Orders { get; set; }
+        public virtual Cart? Cart { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
 
         [NotMapped]
         public IEnumerable<SelectListItem>? AllRoles { get; set; }
+
     }
 }

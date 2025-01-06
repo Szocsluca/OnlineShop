@@ -58,7 +58,6 @@ namespace ArticlesApp.Controllers
 
             return RedirectToAction("Index");
         }
-
         //Functie care sterge un produs din cosul de cumparaturi
         [HttpPost]
         [Authorize(Roles = "User,Colaborator,Admin")]
@@ -76,8 +75,7 @@ namespace ArticlesApp.Controllers
             return RedirectToAction("Index");
         }
 
-        //Functie care finalizeaza comanda. Prin finalizare se scade stocul produselor din cosul de cumparaturi si se adauga o noua comanda in baza de date
-        [HttpPost]
+        //Functie care sterge toate produsele din cosul de cumparaturi si plaseaza o comanda 
         [Authorize(Roles = "User,Colaborator,Admin")]
         public IActionResult FinalizeOrder()
         {
@@ -107,6 +105,7 @@ namespace ArticlesApp.Controllers
                 try
                 {
                     int totalPrice = 0;
+                    var productDetails = new List<string>();
 
                     foreach (var productCart in cart.ProductCarts)
                     {
@@ -126,15 +125,21 @@ namespace ArticlesApp.Controllers
                             return RedirectToAction("Index");
                         }
 
+                     
                         product.Stock -= productCart.Quantity;
                         totalPrice += product.Price * productCart.Quantity;
+
+                       
+                        productDetails.Add($"{productCart.Quantity} x {product.Title} @ €{product.Price}");
                     }
 
+                  
                     var order = new Order
                     {
                         UserId = userId,
                         Date = DateTime.Now,
-                        TotalPrice = totalPrice
+                        TotalPrice = totalPrice,
+                        Description = string.Join("; ", productDetails) 
                     };
 
                     db.Orders.Add(order);
@@ -143,7 +148,6 @@ namespace ArticlesApp.Controllers
 
                     transaction.Commit();
 
-                
                     return RedirectToAction("OrderConfirmation", new { orderId = order.Id });
                 }
                 catch (Exception)
@@ -155,6 +159,7 @@ namespace ArticlesApp.Controllers
                 }
             }
         }
+
 
 
         [Authorize(Roles = "User,Colaborator,Admin")]

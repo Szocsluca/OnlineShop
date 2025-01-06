@@ -20,7 +20,6 @@ namespace ArticlesApp.Areas.Identity.Pages.Account.Manage
 
         public async Task OnGetAsync()
         {
-            // Fetch unconfirmed products with their categories
             UnconfirmedProducts = await _db.Products
                 .Include(p => p.Category)
                 .Where(p => !p.IsVisible)
