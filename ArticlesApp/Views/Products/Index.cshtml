@@ -46,6 +46,12 @@
 
         <!-- Product grid -->
         <div class="col-md-9" id="productContainer">
+            <form>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Search topics or keywords" name="search"
+                           value="@ViewBag.SearchString" onchange="applyFilter()">
+                </div>
+            </form>
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 @foreach (var product in ViewBag.Products)
                 {
@@ -103,12 +109,17 @@
         const form = document.getElementById("filterForm");
         const formData = new FormData(form);
         const selectedCategories = Array.from(formData.getAll("categoryIds"));
+        const selectedSearch = document.querySelector("input[name='search']").value;
         const allProducts = formData.get("allProducts") === "true";
 
         // Build the query string
         let query = allProducts
             ? ""
             : selectedCategories.map(id => `categoryIds=${id}`).join("&");
+
+        if (selectedSearch) {
+			query += (query ? "&" : "") + `search=${encodeURIComponent(selectedSearch)}`;
+		}
 
         // Make an AJAX request to the Index action
         fetch(`/Products/Index?${query}`, {

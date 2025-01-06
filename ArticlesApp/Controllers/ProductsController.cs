@@ -23,12 +23,18 @@ namespace ArticlesApp.Controllers
             _env = env;
         }
 
-        public IActionResult Index(List<int> categoryIds)
+        public IActionResult Index(List<int> categoryIds, string search)
         {
             ViewBag.Categories = db.Categories.ToList();
             IQueryable<Product> products = db.Products
                 .Include(p => p.Category)
-                .Include(p => p.Reviews); 
+                .Include(p => p.Reviews);
+
+            if (search != null)
+            {
+                List<int> productIds = db.Products.Where(p => p.Title.Contains(search)).Select(p => p.Id).ToList();
+                products = products.Where(p => productIds.Contains(p.Id));
+            }
 
             if (categoryIds != null && categoryIds.Count > 0)
             {
@@ -47,6 +53,7 @@ namespace ArticlesApp.Controllers
                 }
             }
 
+            ViewBag.SearchString = search;
             ViewBag.Products = products.ToList();
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -56,11 +63,6 @@ namespace ArticlesApp.Controllers
 
             return View();
         }
-
-
-
-
-
 
         [Authorize(Policy = "AdminOnly")]
         public IActionResult Confirm()

@@ -113,7 +113,9 @@ namespace ArticlesApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Carts");
                 });
@@ -406,8 +408,8 @@ namespace ArticlesApp.Migrations
             modelBuilder.Entity("ArticlesApp.Models.Cart", b =>
                 {
                     b.HasOne("ArticlesApp.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
+                        .WithOne("Cart")
+                        .HasForeignKey("ArticlesApp.Models.Cart", "UserId");
 
                     b.Navigation("User");
                 });
@@ -415,7 +417,7 @@ namespace ArticlesApp.Migrations
             modelBuilder.Entity("ArticlesApp.Models.Order", b =>
                 {
                     b.HasOne("ArticlesApp.Models.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
@@ -529,6 +531,10 @@ namespace ArticlesApp.Migrations
 
             modelBuilder.Entity("ArticlesApp.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("Cart");
+
+                    b.Navigation("Orders");
+
                     b.Navigation("Products");
 
                     b.Navigation("Reviews");
