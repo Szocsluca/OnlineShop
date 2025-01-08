@@ -23,7 +23,7 @@ namespace ArticlesApp.Controllers
             _env = env;
         }
 
-        public IActionResult Index(List<int> categoryIds, string search)
+        public IActionResult Index(List<int?> categoryIds, string search)
         {
             ViewBag.Categories = db.Categories.ToList();
             IQueryable<Product> products = db.Products
@@ -234,11 +234,12 @@ namespace ArticlesApp.Controllers
                 ModelState.Remove(nameof(product.Image));
 				product.Image = databaseFileName;
 			}
-			Console.WriteLine(product.Title);
-            if (TryValidateModel(product))
+			product.UserId = _userManager.GetUserId(User);
+            if (ModelState.IsValid)
             {    
 				db.Products.Add(product);
 				db.SaveChanges();
+                TempData["message"] = "Produsul a fost trimis catre validare!";
                 return RedirectToAction("Index");
             }
             product.Categ = GetAllCategories();
@@ -254,45 +255,40 @@ namespace ArticlesApp.Controllers
 										 .Where(art => art.Id == id)
 										 .First();
 			product.Categ = GetAllCategories();
-			return View(product);
-		}
+
+            if ((product.UserId == _userManager.GetUserId(User)) || !User.IsInRole("Admin"))
+            {
+                return View(product);
+            }
+            TempData["message"] = "Nu aveti dreptul sa modificati produsele altor utilizatori!";
+            TempData["messageType"] = "alert-danger";
+            return RedirectToAction("Index");
+        }
        
         [HttpPost]
         [Authorize(Roles = "Colaborator,Admin")]
-        public IActionResult Edit(int id, Product requestProduct, IFormFile uploadedImage)
+        public IActionResult Edit(int id, Product requestProduct)
         {
             Product product = db.Products.Find(id);
-            try
-            {
-                product.Title = requestProduct.Title;
-                product.Description = requestProduct.Description;
-                product.Price = requestProduct.Price;
-                product.Stock = requestProduct.Stock;
-                product.Rating = requestProduct.Rating;
-                product.CategoryId = requestProduct.CategoryId;
-                product.IsVisible = false;
-
-
-                if (uploadedImage != null && uploadedImage.Length > 0)
+                if((product.UserId == _userManager.GetUserId(User)) || User.IsInRole("Admin"))
                 {
-             
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(uploadedImage.FileName);
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        uploadedImage.CopyTo(stream);
-                    }
-                    product.Image = "/images/" + fileName;
+                    product.Title = requestProduct.Title;
+                    product.Description = requestProduct.Description;
+                    product.Price = requestProduct.Price;
+                    product.Stock = requestProduct.Stock;
+                    product.CategoryId = requestProduct.CategoryId;
+                    product.IsVisible = false;
+                    db.SaveChanges();
+                    TempData["message"] = "Produsul a fost modificat";
+                    TempData["messageType"] = "alert-success";
+                    return RedirectToAction("Index");
                 }
-                db.SaveChanges();
-                TempData["message"] = "Produsul a fost modificat";
-                return RedirectToAction("Index");
-            }
-            catch (Exception e)
-            {
-                requestProduct.Categ = GetAllCategories();
-                return View(requestProduct);
-            }
+                else
+                {
+                    TempData["message"] = "Nu aveti dreptul sa modificati produsele altor utilizatori!";
+                    TempData["messageType"] = "alert-danger";
+                    return RedirectToAction("Index");
+                }
         }
 
 

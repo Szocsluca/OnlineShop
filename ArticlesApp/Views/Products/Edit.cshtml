@@ -5,29 +5,33 @@
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-6 offset-3">
-            <form asp-action="Edit" asp-route-id="@Model.Id" enctype="multipart/form-data" method="post">
+            <form asp-action="Edit" asp-route-id="@Model.Id" asp-controller="Products" enctype="multipart/form-data" method="post">
                 <div class="form-group">
                     <label asp-for="Title" class="form-label">Titlu Produs</label>
                     <br />
                     <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
                     <br /><br />
                 </div>
                 <div class="form-group">
                     <label asp-for="Description" class="form-label">Descriere Produs</label>
                     <br />
                     <textarea asp-for="Description" class="form-control"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
                     <br /><br />
                 </div>
                 <div class="form-group">
                     <label asp-for="Price" class="form-label">Pret Produs</label>
                     <br />
-                    <textarea asp-for="Price" class="form-control"></textarea>
+                    <input asp-for="Price" class="form-control">
+                    <span asp-validation-for="Price" class="text-danger"></span>
                     <br /><br />
                 </div>
                 <div class="form-group">
                     <label asp-for="Stock" class="form-label">Stock Produs</label>
                     <br />
-                    <textarea asp-for="Stock" class="form-control"></textarea>
+                    <input asp-for="Stock" class="form-control">
+                    <span asp-validation-for="Stock" class="text-danger"></span>
                     <br /><br />
                 </div>
                 <div class="form-group">
@@ -36,12 +40,9 @@
                     <select asp-for="CategoryId" asp-items="Model.Categ" class="form-control">
                         <option value="">Selectati categoria</option>
                     </select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
                     <br />
                 </div>
-                    <div class="form-group">
-                        <label for="uploadedImage">Imagine Produs</label>
-                        <input type="file" id="uploadedImage" name="uploadedImage" class="form-control" />
-                    </div>
                 <button class="btn btn-sm btn-success" type="submit">Modifica produs</button>
             </form>
             

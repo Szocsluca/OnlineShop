@@ -11,16 +11,21 @@ namespace ArticlesApp.Models
         public int Id { get; set; }
         [Required(ErrorMessage = "Titlul este obligatoriu")]
         public string Title { get; set; }
-        [Required(ErrorMessage = "Continutul articolului este obligatoriu")]
+        [Required(ErrorMessage = "Descrierea produsuui este obligatorie")]
+        [MinLength(10, ErrorMessage = "Descrierea trebuie sa aiba cel putin 10 caractere")]
         public string Description { get; set; }
-        //public Image Image { get; set; }
+        [Required(ErrorMessage = "Pretul este obligatoriu")]
+        [Range(1, int.MaxValue, ErrorMessage = "Pretul trebuie sa fie mai mare decat 0")]
         public int Price { get; set; }
+        [Required(ErrorMessage = "Stocul este obligatoriu")]
+        [Range(1, int.MaxValue, ErrorMessage = "Stocul trebuie sa fie mai mare decat 0")]
         public int Stock { get; set; }
+        [Required(ErrorMessage = "Imaginea este obligatorie")]
         public string? Image { get; set; }
         public bool IsVisible { get; set; }
         public double Rating { get; set; }
 		[Required(ErrorMessage = "Categoria este obligatorie")]
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
 
         public string? UserId { get; set; }
         public virtual Category? Category { get; set; }
