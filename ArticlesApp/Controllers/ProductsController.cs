@@ -41,8 +41,7 @@ namespace ArticlesApp.Controllers
                 products = products.Where(p => categoryIds.Contains(p.CategoryId));
             }
 
-            if (priceRange != null && priceRange.Count > 0)
-            {
+          
                 foreach (var range in priceRange)
                 {
                     var prices = range.Split('-');
@@ -55,7 +54,7 @@ namespace ArticlesApp.Controllers
                         products = products.Where(p => p.Price > greaterThanPrice);
                     }
                 }
-            }
+          
 
             foreach (var product in products)
             {
