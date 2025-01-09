@@ -8,12 +8,12 @@
 <h3>Manage Orders</h3>
 
 <div class="container mt-3">
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="ordersContainer">
         @if (Model.Orders != null && Model.Orders.Any())
         {
             @foreach (var order in Model.Orders)
             {
-                <div class="col">
+                <div class="col order-card" data-order-id="@order.Id">
                     <div class="card shadow-sm border-0 h-100">
                         <div class="card-body">
                             <h5 class="card-title text-center">Order #@order.Id</h5>
@@ -26,6 +26,24 @@
                             <p class="card-text">
                                 <strong>Total Price:</strong> €@order.TotalPrice
                             </p>
+                            <div class="card-text">
+                                <strong>Products:</strong>
+                                <ul>
+                                    @if (!string.IsNullOrEmpty(order.Description))
+                                    {
+                                        foreach (var product in order.Description.Split(';', StringSplitOptions.RemoveEmptyEntries))
+                                        {
+                                            <li>@product</li>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <li class="text-muted">No products listed for this order.</li>
+                                    }
+                                </ul>
+                            </div>
+
+                            <button class="btn btn-danger w-100" onclick="hideOrder(@order.Id)">Hide</button>
                         </div>
                     </div>
                 </div>
@@ -37,3 +55,29 @@
         }
     </div>
 </div>
+
+<script>
+    function hideOrder(orderId) {
+     
+        const orderCard = document.querySelector(`.order-card[data-order-id='${orderId}']`);
+        if (orderCard) {
+            orderCard.style.display = 'none';
+
+      
+            let hiddenOrders = JSON.parse(localStorage.getItem('hiddenOrders')) || [];
+            hiddenOrders.push(orderId);
+            localStorage.setItem('hiddenOrders', JSON.stringify(hiddenOrders));
+        }
+    }
+
+ 
+    document.addEventListener('DOMContentLoaded', () => {
+        const hiddenOrders = JSON.parse(localStorage.getItem('hiddenOrders')) || [];
+        hiddenOrders.forEach(orderId => {
+            const orderCard = document.querySelector(`.order-card[data-order-id='${orderId}']`);
+            if (orderCard) {
+                orderCard.style.display = 'none';
+            }
+        });
+    });
+</script>

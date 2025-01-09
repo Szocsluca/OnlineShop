@@ -23,17 +23,16 @@ namespace ArticlesApp.Controllers
             _env = env;
         }
 
-        public IActionResult Index(List<int?> categoryIds, string search)
+        public IActionResult Index(List<int?> categoryIds, string search, List<string> priceRange)
         {
             ViewBag.Categories = db.Categories.ToList();
             IQueryable<Product> products = db.Products
                 .Include(p => p.Category)
                 .Include(p => p.Reviews);
 
-            if (search != null)
+            if (!string.IsNullOrEmpty(search))
             {
-                List<int> productIds = db.Products.Where(p => p.Title.Contains(search)).Select(p => p.Id).ToList();
-                products = products.Where(p => productIds.Contains(p.Id));
+                products = products.Where(p => p.Title.Contains(search));
             }
 
             if (categoryIds != null && categoryIds.Count > 0)
@@ -41,16 +40,27 @@ namespace ArticlesApp.Controllers
                 products = products.Where(p => categoryIds.Contains(p.CategoryId));
             }
 
+            if (priceRange != null && priceRange.Count > 0)
+            {
+                foreach (var range in priceRange)
+                {
+                    var prices = range.Split('-');
+                    if (prices.Length == 2 && decimal.TryParse(prices[0], out decimal minPrice) && decimal.TryParse(prices[1], out decimal maxPrice))
+                    {
+                        products = products.Where(p => p.Price >= minPrice && p.Price <= maxPrice);
+                    }
+                    else if (range.StartsWith(">") && decimal.TryParse(range.Substring(1), out decimal greaterThanPrice))
+                    {
+                        products = products.Where(p => p.Price > greaterThanPrice);
+                    }
+                }
+            }
+
             foreach (var product in products)
             {
-                if (product.Reviews != null && product.Reviews.Any())
-                {
-                    product.Rating = product.Reviews.Average(r => r.Score);
-                }
-                else
-                {
-                    product.Rating = 0;
-                }
+                product.Rating = product.Reviews != null && product.Reviews.Any()
+                    ? product.Reviews.Average(r => r.Score)
+                    : 0;
             }
 
             ViewBag.SearchString = search;
@@ -63,6 +73,7 @@ namespace ArticlesApp.Controllers
 
             return View();
         }
+
 
         [Authorize(Policy = "AdminOnly")]
         public IActionResult Confirm()
