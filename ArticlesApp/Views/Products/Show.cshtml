@@ -22,7 +22,7 @@
                     </div>
 
                     <p class="mt-4 text-muted">@Model.Description</p>
-                    @if (User.IsInRole("Admin") || User.IsInRole("Colaborator"))
+                    @if (User.IsInRole("Admin") || ViewBag.UserId == Model.UserId)
                     {
                         <div class="mt-4">
                             <a asp-controller="Products" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary me-2">
