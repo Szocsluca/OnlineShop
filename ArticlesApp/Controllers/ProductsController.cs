@@ -43,9 +43,9 @@ namespace ArticlesApp.Controllers
 
             foreach (var product in products)
             {
-                if (product.Reviews != null && product.Reviews.Any())
+                if (product.Reviews != null && product.Reviews.Any(r => r.Score.HasValue))
                 {
-                    product.Rating = product.Reviews.Average(r => r.Score);
+                    product.Rating = (double)product.Reviews.Where(r => r.Score != null).Average(r => r.Score);
                 }
                 else
                 {
@@ -131,7 +131,7 @@ namespace ArticlesApp.Controllers
 				return Redirect("/Products/Show/" + review.ProductId);
             }
 
-             if (existingReview == null)
+             if (existingReview == null && ModelState.IsValid)
 			{
                 db.Reviews.Add(review);
                 db.SaveChanges();

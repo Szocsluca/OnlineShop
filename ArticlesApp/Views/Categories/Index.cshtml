@@ -5,7 +5,9 @@
 
 @if (TempData.ContainsKey("message"))
 {
-    <h1>@ViewBag.message</h1>
+    <div class="alert alert-success" role="alert">
+        @ViewBag.message
+    </div>
 }
 
 <a class="btn btn-success" asp-action="Index" asp-controller="Products">Inapoi la produse</a>
@@ -28,4 +30,3 @@
 <a class="btn btn-success" asp-action="New" asp-controller="Categories">Adauga o noua categorie</a>
 
 <br />
-

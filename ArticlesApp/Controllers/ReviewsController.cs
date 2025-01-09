@@ -60,10 +60,17 @@ namespace ArticlesApp.Controllers
 			Review rev = db.Reviews.Find(id);
 			if(rev.UserId == _userManager.GetUserId(User))
             {
-                rev.Content = requestReview.Content;
-                rev.Score = requestReview.Score;
-                db.SaveChanges();
-                return Redirect("/Products/Show/" + rev.ProductId);
+                if(ModelState.IsValid)
+                {
+                    rev.Content = requestReview.Content;
+                    rev.Score = requestReview.Score;
+                    db.SaveChanges();
+                    return Redirect("/Products/Show/" + rev.ProductId);
+                }
+                else
+                {
+                    return View(requestReview);
+                }
                 
             }
             else
