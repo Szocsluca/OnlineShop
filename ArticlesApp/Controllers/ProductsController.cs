@@ -30,9 +30,10 @@ namespace ArticlesApp.Controllers
                 .Include(p => p.Category)
                 .Include(p => p.Reviews);
 
-            if (!string.IsNullOrEmpty(search))
+            if (search != null)
             {
-                products = products.Where(p => p.Title.Contains(search));
+                List<int> productIds = db.Products.Where(p => p.Title.Contains(search)).Select(p => p.Id).ToList();
+                products = products.Where(p => productIds.Contains(p.Id));
             }
 
             if (categoryIds != null && categoryIds.Count > 0)
@@ -73,7 +74,6 @@ namespace ArticlesApp.Controllers
 
             return View();
         }
-
 
         [Authorize(Policy = "AdminOnly")]
         public IActionResult Confirm()
