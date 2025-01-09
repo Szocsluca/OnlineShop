@@ -4,6 +4,7 @@ using ArticlesApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArticlesApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250105194222_m9")]
+    partial class m9
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -113,9 +116,7 @@ namespace ArticlesApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasFilter("[UserId] IS NOT NULL");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Carts");
                 });
@@ -148,9 +149,6 @@ namespace ArticlesApp.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("TotalPrice")
                         .HasColumnType("int");
 
@@ -172,8 +170,7 @@ namespace ArticlesApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CategoryId")
-                        .IsRequired()
+                    b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -181,7 +178,6 @@ namespace ArticlesApp.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Image")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsVisible")
@@ -256,10 +252,11 @@ namespace ArticlesApp.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Score")
+                    b.Property<int>("Score")
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -267,8 +264,7 @@ namespace ArticlesApp.Migrations
                     b.HasIndex("UserId");
 
                     b.HasIndex("ProductId", "UserId")
-                        .IsUnique()
-                        .HasFilter("[UserId] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("Reviews");
                 });
@@ -413,8 +409,8 @@ namespace ArticlesApp.Migrations
             modelBuilder.Entity("ArticlesApp.Models.Cart", b =>
                 {
                     b.HasOne("ArticlesApp.Models.ApplicationUser", "User")
-                        .WithOne("Cart")
-                        .HasForeignKey("ArticlesApp.Models.Cart", "UserId");
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -422,7 +418,7 @@ namespace ArticlesApp.Migrations
             modelBuilder.Entity("ArticlesApp.Models.Order", b =>
                 {
                     b.HasOne("ArticlesApp.Models.ApplicationUser", "User")
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
@@ -474,7 +470,9 @@ namespace ArticlesApp.Migrations
 
                     b.HasOne("ArticlesApp.Models.ApplicationUser", "User")
                         .WithMany("Reviews")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Product");
 
@@ -534,10 +532,6 @@ namespace ArticlesApp.Migrations
 
             modelBuilder.Entity("ArticlesApp.Models.ApplicationUser", b =>
                 {
-                    b.Navigation("Cart");
-
-                    b.Navigation("Orders");
-
                     b.Navigation("Products");
 
                     b.Navigation("Reviews");

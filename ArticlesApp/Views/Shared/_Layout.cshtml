@@ -38,7 +38,7 @@
                         }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Carts" asp-action="Index">
-                                <i class="bi bi-cart"></i> Coș
+                                Coș<i class="bi bi-cart"></i>
                             </a>
                         </li>
                         @if (User.IsInRole("Admin"))
@@ -69,3 +69,11 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+<style>
+    i {
+        vertical-align: middle;
+        margin-left: 10px;
+    }
+
+</style>

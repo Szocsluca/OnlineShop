@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing;
 using System.Numerics;
 
 namespace ArticlesApp.Models
@@ -12,5 +13,7 @@ namespace ArticlesApp.Models
         public virtual ApplicationUser User { get; set; }
         public DateTime Date { get; set; }
 		public int TotalPrice { get; set; }
+
+		public string? Description { get; set; }
 	}
 }

@@ -23,7 +23,7 @@ namespace ArticlesApp.Controllers
             _env = env;
         }
 
-        public IActionResult Index(List<int?> categoryIds, string search)
+        public IActionResult Index(List<int?> categoryIds, string search, List<string> priceRange)
         {
             ViewBag.Categories = db.Categories.ToList();
             IQueryable<Product> products = db.Products
@@ -41,11 +41,11 @@ namespace ArticlesApp.Controllers
                 products = products.Where(p => categoryIds.Contains(p.CategoryId));
             }
 
-            foreach (var product in products)
+            if (priceRange != null && priceRange.Count > 0)
             {
-                if (product.Reviews != null && product.Reviews.Any(r => r.Score.HasValue))
+                if (product.Reviews != null && product.Reviews.Any())
                 {
-                    product.Rating = (double)product.Reviews.Where(r => r.Score != null).Average(r => r.Score);
+                    product.Rating = product.Reviews.Average(r => r.Score);
                 }
                 else
                 {
