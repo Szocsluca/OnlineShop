@@ -8,12 +8,37 @@
         <div class="col-md-3 bg-light rounded-3 p-4">
             <h4 class="fw-bold">Categorii</h4>
             <form id="filterForm">
+                <!-- Existing Filters -->
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="allProducts" name="allProducts" value="true" onchange="applyFilter()">
                     <label class="form-check-label" for="allProducts">Toate Produsele</label>
                 </div>
                 <hr>
+
+                <!-- Sorting Options -->
+                <h5 class="mt-4">Sort by</h5>
+                <div class="form-group mb-3">
+                    <label for="sortPrice" class="form-label">Price</label>
+                    <select class="form-select" id="sortPrice" name="sortPrice" onchange="applyFilter()">
+                        <option value="">-- Select --</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="price-desc">Price: High to Low</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="sortRating" class="form-label">Rating</label>
+                    <select class="form-select" id="sortRating" name="sortRating" onchange="applyFilter()">
+                        <option value="">-- Select --</option>
+                        <option value="rating-asc">Rating: Low to High</option>
+                        <option value="rating-desc">Rating: High to Low</option>
+                    </select>
+                </div>
+
+                <!-- Price Ranges -->
+                <hr>
                 <h5 class="mt-4">Preț</h5>
+                <!-- Price Range Filters -->
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="price-1" name="priceRange" value="0-100" onchange="applyFilter()">
                     <label class="form-check-label" for="price-1">0€ - 100€</label>
@@ -41,6 +66,7 @@
                 }
             </form>
         </div>
+
 
 
         <div class="col-md-9" id="productContainer">
@@ -109,47 +135,58 @@
 
 
 <script>
-function applyFilter() {
-    const form = document.getElementById("filterForm");
-    const formData = new FormData(form);
+    function applyFilter() {
+        const form = document.getElementById("filterForm");
+        const formData = new FormData(form);
 
-    const selectedCategories = Array.from(formData.getAll("categoryIds"));
-    const selectedPriceRanges = Array.from(formData.getAll("priceRange"));
-    const selectedSearch = document.querySelector("input[name='search']").value;
-    const allProducts = formData.get("allProducts") === "true";
+        const selectedCategories = Array.from(formData.getAll("categoryIds"));
+        const selectedPriceRanges = Array.from(formData.getAll("priceRange"));
+        const selectedSortPrice = formData.get("sortPrice");
+        const selectedSortRating = formData.get("sortRating");
+        const selectedSearch = document.querySelector("input[name='search']").value;
+        const allProducts = formData.get("allProducts") === "true";
 
-    let query = allProducts
-        ? ""
-        : selectedCategories.map(id => `categoryIds=${id}`).join("&");
+        let query = allProducts
+            ? ""
+            : selectedCategories.map(id => `categoryIds=${id}`).join("&");
 
-    if (selectedPriceRanges.length > 0) {
-        query += (query ? "&" : "") + selectedPriceRanges.map(range => `priceRange=${range}`).join("&");
-    }
-
-    if (selectedSearch) {
-        query += (query ? "&" : "") + `search=${encodeURIComponent(selectedSearch)}`;
-    }
-
-    fetch(`/Products/Index?${query}`, {
-        method: "GET",
-        headers: {
-            "X-Requested-With": "XMLHttpRequest"
+        if (selectedPriceRanges.length > 0) {
+            query += (query ? "&" : "") + selectedPriceRanges.map(range => `priceRange=${range}`).join("&");
         }
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+
+        if (selectedSearch) {
+            query += (query ? "&" : "") + `search=${encodeURIComponent(selectedSearch)}`;
+        }
+
+        if (selectedSortPrice) {
+            query += (query ? "&" : "") + `sortPrice=${selectedSortPrice}`;
+        }
+
+        if (selectedSortRating) {
+            query += (query ? "&" : "") + `sortRating=${selectedSortRating}`;
+        }
+
+        fetch(`/Products/Index?${query}`, {
+            method: "GET",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
             }
-            return response.text();
         })
-        .then(html => {
-            const productContainer = document.getElementById("productContainer");
-            productContainer.innerHTML = html;
-        })
-        .catch(error => {
-            console.error("Error fetching filtered products:", error);
-        });
-}
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                const productContainer = document.getElementById("productContainer");
+                productContainer.innerHTML = html;
+            })
+            .catch(error => {
+                console.error("Error fetching filtered products:", error);
+            });
+    }
+
 </script>
 
 
@@ -197,7 +234,7 @@ function applyFilter() {
 
     .card-title 
     {
-        font-size: clamp(0.8rem, 1.2vw, 1.5rem); 
+        font-size: clamp(0.8rem, 1.2vw, 1rem); 
         overflow: hidden;
         text-overflow: ellipsis;
         display: -webkit-box; 

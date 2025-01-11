@@ -23,14 +23,14 @@ namespace ArticlesApp.Controllers
             _env = env;
         }
 
-        public IActionResult Index(List<int?> categoryIds, string search, List<string> priceRange)
+        public IActionResult Index(List<int?> categoryIds, string search, List<string> priceRange, string sortPrice, string sortRating)
         {
             ViewBag.Categories = db.Categories.ToList();
             IQueryable<Product> products = db.Products
                 .Include(p => p.Category)
                 .Include(p => p.Reviews);
 
-            if (search != null)
+            if (!string.IsNullOrEmpty(search))
             {
                 List<int> productIds = db.Products.Where(p => p.Title.Contains(search)).Select(p => p.Id).ToList();
                 products = products.Where(p => productIds.Contains(p.Id));
@@ -69,6 +69,16 @@ namespace ArticlesApp.Controllers
                 }
             }
 
+            if (!string.IsNullOrEmpty(sortPrice))
+            {
+                products = sortPrice == "price-asc" ? products.OrderBy(p => p.Price) : products.OrderByDescending(p => p.Price);
+            }
+
+            if (!string.IsNullOrEmpty(sortRating))
+            {
+                products = sortRating == "rating-asc" ? products.OrderBy(p => p.Rating) : products.OrderByDescending(p => p.Rating);
+            }
+
             ViewBag.SearchString = search;
             ViewBag.Products = products.ToList();
 
@@ -79,6 +89,7 @@ namespace ArticlesApp.Controllers
 
             return View();
         }
+
 
         [Authorize(Policy = "AdminOnly")]
         public IActionResult Confirm()
