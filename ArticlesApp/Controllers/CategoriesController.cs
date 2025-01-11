@@ -1,16 +1,24 @@
 ﻿using ArticlesApp.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ArticlesApp.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class CategoriesController : Controller
     {
         private readonly ApplicationDbContext db;
-
-        public CategoriesController(ApplicationDbContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public CategoriesController(ApplicationDbContext context,
+        UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole> roleManager)
         {
             db = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
         public ActionResult Index()
         {
@@ -31,7 +39,7 @@ namespace ArticlesApp.Controllers
             Category category = db.Categories.Find(id);
             return View(category);
         }
-        [Authorize(Policy = "AdminOnly")]
+
         public ActionResult New()
         {
             return View();
@@ -40,20 +48,19 @@ namespace ArticlesApp.Controllers
         [HttpPost]
         public ActionResult New(Category cat)
         {
-            try
+            if (ModelState.IsValid)
             {
                 db.Categories.Add(cat);
                 db.SaveChanges();
                 TempData["message"] = "Categoria a fost adaugata";
                 return RedirectToAction("Index");
             }
-
-            catch (Exception e)
+            else
             {
                 return View(cat);
             }
         }
-        [Authorize(Policy = "AdminOnly")]
+
         public ActionResult Edit(int id)
         {
             Category category = db.Categories.Find(id);
@@ -65,7 +72,7 @@ namespace ArticlesApp.Controllers
         {
             Category category = db.Categories.Find(id);
 
-            try
+            if(ModelState.IsValid)
             {
 
                 category.CategoryName = requestCategory.CategoryName;
@@ -73,7 +80,7 @@ namespace ArticlesApp.Controllers
                 TempData["message"] = "Categoria a fost modificata!";
                 return RedirectToAction("Index");
             }
-            catch (Exception e)
+            else
             {
                 return View(requestCategory);
             }
@@ -83,7 +90,10 @@ namespace ArticlesApp.Controllers
         [Authorize(Policy = "AdminOnly")]
         public ActionResult Delete(int id)
         {
-            Category category = db.Categories.Find(id);
+            Category category = db.Categories.Include("Products")
+                .Include("Products.Reviews").Include("Products.ProductCarts")
+                .Where(c => c.Id == id).First();
+
             db.Categories.Remove(category);
             db.SaveChanges();
             TempData["message"] = "Categoria a fost stearsa";

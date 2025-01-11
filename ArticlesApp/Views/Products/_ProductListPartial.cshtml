@@ -24,7 +24,14 @@
                             @product.Title
                             <span class="ms-2 text-warning">
                                 <i class="bi bi-star-fill"></i>
-                                <span class="text-muted">@product.Rating.ToString("0.0")</span>
+                                @if (product.Rating > 0)
+                                {
+                                    <span class="text-muted">@product.Rating.ToString("0.0")</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No reviews yet</span>
+                                }
                             </span>
                         </h5>
                         <p class="card-text fw-bold text-success">€@product.Price</p>

@@ -41,7 +41,8 @@ namespace ArticlesApp.Controllers
                 products = products.Where(p => categoryIds.Contains(p.CategoryId));
             }
 
-          
+            if (priceRange != null && priceRange.Count > 0)
+            {
                 foreach (var range in priceRange)
                 {
                     var prices = range.Split('-');
@@ -54,13 +55,18 @@ namespace ArticlesApp.Controllers
                         products = products.Where(p => p.Price > greaterThanPrice);
                     }
                 }
-          
+            }
 
             foreach (var product in products)
             {
-                product.Rating = product.Reviews != null && product.Reviews.Any()
-                    ? product.Reviews.Average(r => r.Score)
-                    : 0;
+                if (product.Reviews != null && product.Reviews.Any(r => r.Score.HasValue))
+                {
+                    product.Rating = (double)product.Reviews.Where(r => r.Score != null).Average(r => r.Score);
+                }
+                else
+                {
+                    product.Rating = 0;
+                }
             }
 
             ViewBag.SearchString = search;
@@ -117,6 +123,7 @@ namespace ArticlesApp.Controllers
             var userCart = db.Carts.FirstOrDefault(c => c.UserId == userId);
 
             ViewBag.UserCartId = userCart?.Id;
+            ViewBag.UserId = userId;
             SetAccessRights();
 			if(TempData.ContainsKey("message"))
 			{
@@ -141,7 +148,7 @@ namespace ArticlesApp.Controllers
 				return Redirect("/Products/Show/" + review.ProductId);
             }
 
-             if (existingReview == null)
+            if (existingReview == null && ModelState.IsValid)
 			{
                 db.Reviews.Add(review);
                 db.SaveChanges();
@@ -266,13 +273,13 @@ namespace ArticlesApp.Controllers
 										 .First();
 			product.Categ = GetAllCategories();
 
-            if ((product.UserId == _userManager.GetUserId(User)) || !User.IsInRole("Admin"))
+            if ((product.UserId == _userManager.GetUserId(User)) || User.IsInRole("Admin"))
             {
                 return View(product);
             }
             TempData["message"] = "Nu aveti dreptul sa modificati produsele altor utilizatori!";
             TempData["messageType"] = "alert-danger";
-            return RedirectToAction("Index");
+            return Redirect("/Products/Show/" + product.Id);
         }
        
         [HttpPost]
@@ -289,15 +296,13 @@ namespace ArticlesApp.Controllers
                     product.CategoryId = requestProduct.CategoryId;
                     product.IsVisible = false;
                     db.SaveChanges();
-                    TempData["message"] = "Produsul a fost modificat";
-                    TempData["messageType"] = "alert-success";
                     return RedirectToAction("Index");
                 }
                 else
                 {
                     TempData["message"] = "Nu aveti dreptul sa modificati produsele altor utilizatori!";
                     TempData["messageType"] = "alert-danger";
-                    return RedirectToAction("Index");
+                    return Redirect("/Products/Show/" + product.Id);
                 }
         }
 

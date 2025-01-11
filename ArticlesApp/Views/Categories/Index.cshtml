@@ -2,7 +2,7 @@
 
 @if (TempData.ContainsKey("message"))
 {
-    <div class="alert alert-success text-center">@TempData["message"]</div>
+    <h1>@ViewBag.message</h1>
 }
 
 <div class="container">
@@ -47,11 +47,5 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
-    .btn {
-        transition: background-color 0.3s ease, transform 0.3s ease;
-    }
+<br />
 
-        .btn:hover {
-            transform: scale(1.05);
-        }
-</style>

@@ -10,8 +10,11 @@
         <br />
         <textarea asp-for="Content" class="form-control"></textarea>
         <span asp-validation-for="Content" class="text-danger"></span>
-        <label asp-for="Score" class="form-label">Scor Produs</label>
         <br />
+        <br />
+        <label asp-for="Score" class="form-label">Scor Produs</label>
+        
+        
         <div class="star-rating">
             <span class="star" data-value="1">&#9733;</span>
             <span class="star" data-value="2">&#9733;</span>
@@ -20,7 +23,10 @@
             <span class="star" data-value="5">&#9733;</span>
         </div>
         <input asp-for="Score" type="hidden" class="form-control" />
-        <span asp-validation-for="Score" class="text-danger"></span>
+        <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" id="noScoreCheckbox">
+            <label class="form-check-label" for="noScoreCheckbox">No Score</label>
+        </div>
     </div>
 
     <br /><br />
@@ -42,16 +48,17 @@
         color: #ddd;
     }
 
-        .star.selected,
-        .star.hover {
-            color: #f5b301;
-        }
+    .star.selected,
+    .star.hover {
+        color: #f5b301;
+    }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const stars = document.querySelectorAll('.star');
         const scoreInput = document.querySelector('input[name="Score"]');
+        const noScoreCheckbox = document.getElementById('noScoreCheckbox');
 
         stars.forEach(star => {
             star.addEventListener('click', function () {
@@ -61,6 +68,7 @@
                 for (let i = 0; i < value; i++) {
                     stars[i].classList.add('selected');
                 }
+                noScoreCheckbox.checked = false; // Uncheck the "No Score" checkbox if a star is selected
             });
 
             star.addEventListener('mouseover', function () {
@@ -74,6 +82,13 @@
             star.addEventListener('mouseout', function () {
                 stars.forEach(s => s.classList.remove('hover'));
             });
+        });
+
+        noScoreCheckbox.addEventListener('change', function () {
+            if (this.checked) {
+                scoreInput.value = '';
+                stars.forEach(s => s.classList.remove('selected'));
+            }
         });
     });
 </script>
