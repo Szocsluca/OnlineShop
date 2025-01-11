@@ -106,6 +106,7 @@
     <div class="card shadow-sm mt-5">
         <div class="card-body">
             <form method="post" asp-controller="Products" asp-action="Show">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" name="ProductId" value="@Model.Id" />
                 <div class="mb-3">
                     <label for="Content" class="form-label">Continut recenzie</label>
