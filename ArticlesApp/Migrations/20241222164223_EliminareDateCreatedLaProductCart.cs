@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace ArticlesApp.Migrations
+namespace OnlineShopApp.Migrations
 {
     /// <inheritdoc />
     public partial class EliminareDateCreatedLaProductCart : Migration

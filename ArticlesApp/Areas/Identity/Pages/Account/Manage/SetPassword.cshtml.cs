@@ -5,12 +5,12 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using ArticlesApp.Models;
+using OnlineShopApp.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace ArticlesApp.Areas.Identity.Pages.Account.Manage
+namespace OnlineShopApp.Areas.Identity.Pages.Account.Manage
 {
     public class SetPasswordModel : PageModel
     {

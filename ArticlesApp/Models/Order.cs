@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Numerics;
 
-namespace ArticlesApp.Models
+namespace OnlineShopApp.Models
 {
 	public class Order
 	{

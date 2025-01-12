@@ -5,13 +5,13 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using ArticlesApp.Models;
+using OnlineShopApp.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 
-namespace ArticlesApp.Areas.Identity.Pages.Account.Manage
+namespace OnlineShopApp.Areas.Identity.Pages.Account.Manage
 {
     public class GenerateRecoveryCodesModel : PageModel
     {

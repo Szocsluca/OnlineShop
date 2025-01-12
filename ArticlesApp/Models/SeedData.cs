@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace ArticlesApp.Models
+namespace OnlineShopApp.Models
 {
     public static class SeedData
     {

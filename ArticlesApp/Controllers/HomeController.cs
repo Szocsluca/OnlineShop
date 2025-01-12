@@ -1,8 +1,8 @@
-using ArticlesApp.Models;
+using OnlineShopApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace ArticlesApp.Controllers
+namespace OnlineShopApp.Controllers
 {
     public class HomeController : Controller
     {

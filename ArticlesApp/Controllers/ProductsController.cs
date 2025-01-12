@@ -1,4 +1,4 @@
-﻿using ArticlesApp.Models;
+﻿using OnlineShopApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Linq;
 
-namespace ArticlesApp.Controllers
+namespace OnlineShopApp.Controllers
 {
     public class ProductsController : Controller
 	{
@@ -25,6 +25,12 @@ namespace ArticlesApp.Controllers
 
         public IActionResult Index(List<int?> categoryIds, string search, List<string> priceRange, string sortPrice, string sortRating)
         {
+            if (TempData.ContainsKey("message"))
+            {
+                ViewBag.Message = TempData["message"];
+                ViewBag.Alert = TempData["messageType"];
+            }
+
             ViewBag.Categories = db.Categories.ToList();
             IQueryable<Product> products = db.Products
                 .Include(p => p.Category)
@@ -99,6 +105,7 @@ namespace ArticlesApp.Controllers
             if (TempData.ContainsKey("message"))
             {
                 ViewBag.Message = TempData["message"];
+                ViewBag.Alert = TempData["messageType"];
             }
             return View();
         }
@@ -268,6 +275,7 @@ namespace ArticlesApp.Controllers
 				db.Products.Add(product);
 				db.SaveChanges();
                 TempData["message"] = "Produsul a fost trimis catre validare!";
+                TempData["messageType"] = "alert-success";
                 return RedirectToAction("Index");
             }
             product.Categ = GetAllCategories();
@@ -307,7 +315,9 @@ namespace ArticlesApp.Controllers
                     product.CategoryId = requestProduct.CategoryId;
                     product.IsVisible = false;
                     db.SaveChanges();
-                    return RedirectToAction("Index");
+                    TempData["message"] = "Produsul a fost trimis catre validare!";
+                    TempData["messageType"] = "alert-success";
+                return RedirectToAction("Index");
                 }
                 else
                 {

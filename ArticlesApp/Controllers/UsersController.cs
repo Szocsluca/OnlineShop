@@ -1,4 +1,4 @@
-﻿using ArticlesApp.Models;
+﻿using OnlineShopApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-namespace ArticlesApp.Controllers
+namespace OnlineShopApp.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class UsersController : Controller

@@ -1,9 +1,9 @@
-﻿using ArticlesApp.Models;
+﻿using OnlineShopApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ArticlesApp.Controllers
+namespace OnlineShopApp.Controllers
 {
     public class ReviewsController : Controller
 	{
