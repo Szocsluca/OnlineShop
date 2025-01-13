@@ -62,10 +62,12 @@ namespace ArticlesApp.Controllers
                 if (product.Reviews != null && product.Reviews.Any(r => r.Score.HasValue))
                 {
                     product.Rating = (double)product.Reviews.Where(r => r.Score != null).Average(r => r.Score);
+                    db.SaveChanges();
                 }
                 else
                 {
                     product.Rating = 0;
+                    db.SaveChanges();
                 }
             }
 
