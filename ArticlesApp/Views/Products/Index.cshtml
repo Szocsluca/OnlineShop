@@ -1,6 +1,8 @@
-﻿@if (ViewBag.Message != null)
+﻿@if (TempData["message"] != null)
 {
-    <h2 class="alert-success p-3 rounded-3 text-center mb-5">@ViewBag.Message</h2>
+    <div class="alert @ViewBag.Alert text-center p-3 rounded-3 mb-4">
+        @TempData["message"]
+    </div>
 }
 
 <div class="container main-content">

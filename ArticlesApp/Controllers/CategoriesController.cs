@@ -1,10 +1,10 @@
-﻿using ArticlesApp.Models;
+﻿using OnlineShopApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace ArticlesApp.Controllers
+namespace OnlineShopApp.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class CategoriesController : Controller

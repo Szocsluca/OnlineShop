@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ArticlesApp.Models
+namespace OnlineShopApp.Models
 {
     public class ProductCart
     {

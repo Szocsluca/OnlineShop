@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace ArticlesApp.Migrations
+namespace OnlineShopApp.Migrations
 {
     /// <inheritdoc />
     public partial class Migratie : Migration

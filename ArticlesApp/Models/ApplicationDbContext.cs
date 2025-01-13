@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace ArticlesApp.Models
+namespace OnlineShopApp.Models
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {

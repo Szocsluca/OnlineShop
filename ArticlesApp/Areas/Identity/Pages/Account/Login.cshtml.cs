@@ -1,4 +1,4 @@
-﻿using ArticlesApp.Models;
+﻿using OnlineShopApp.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;

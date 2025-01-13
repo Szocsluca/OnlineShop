@@ -3,14 +3,14 @@
 #nullable disable
 
 using System;
-using ArticlesApp.Models;
+using OnlineShopApp.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 
 
 
-namespace ArticlesApp.Areas.Identity.Pages.Account.Manage
+namespace OnlineShopApp.Areas.Identity.Pages.Account.Manage
 {
     /// <summary>
     ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used

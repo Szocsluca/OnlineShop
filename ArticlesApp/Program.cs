@@ -1,4 +1,4 @@
-using ArticlesApp.Models;
+using OnlineShopApp.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

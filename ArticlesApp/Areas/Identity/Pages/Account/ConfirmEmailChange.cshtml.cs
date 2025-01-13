@@ -6,13 +6,13 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using ArticlesApp.Models;
+using OnlineShopApp.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 
-namespace ArticlesApp.Areas.Identity.Pages.Account
+namespace OnlineShopApp.Areas.Identity.Pages.Account
 {
     public class ConfirmEmailChangeModel : PageModel
     {

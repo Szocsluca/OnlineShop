@@ -9,7 +9,7 @@
 <h2 class="text-center mb-4">Coșul meu</h2>
 
 @{
-    var carts = ViewBag.Carts as List<ArticlesApp.Models.Cart>; 
+    var carts = ViewBag.Carts as List<OnlineShopApp.Models.Cart>; 
 }
 
 @if (carts == null || !carts.Any() || !carts.Any(cart => cart.ProductCarts != null && cart.ProductCarts.Any()))
